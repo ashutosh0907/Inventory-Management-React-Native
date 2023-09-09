@@ -1,10 +1,9 @@
-import { View, Text } from 'react-native'
-import React, { useState } from 'react'
-import BottomSheetComponent from '../components/BottomSheet'
+import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import BottomSheetComponent from '../components/BottomSheet';
 
 const Truckunloading = () => {
     const [isVisible, setIsVisible] = useState(false);
-
     return (
         <View>
             <Text>Truckunloading</Text>
