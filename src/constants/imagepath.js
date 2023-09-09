@@ -1,0 +1,9 @@
+export const HOME=require('../assets/images/Home.png');
+export const APPOINTMENT=require('../assets/images/Appointmnets.png');
+export const MENU=require('../assets/images/menu.png')
+export const REFINE=require('../assets/images/checklist.png')
+export const PIN=require('../assets/images/pin.png')
+export const FILTER=require('../assets/images/adjust.png')
+export const SEARCH=require('../assets/images/search.png')
+export const BACK=require('../assets/images/back.png')
+export const DOWN=require('../assets/images/downarrow.png')
