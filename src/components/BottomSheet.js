@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { BottomSheet, Button, ListItem } from '@rneui/themed';
-import { StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 
 const BottomSheetComponent = ({ isVisible, toggleBottomSheet }) => {
   const list = [
-    { title: 'List Item 1' },
-    { title: 'List Item 2' },
+    { title: 'Open Camera' },
+    { title: 'Open gallery' },
   ];
 
   const handleListItemPress = (item) => {
     console.log('Selected Item:', item.title);
+    Alert.alert(
+        'Selected Item',
+        item.title,
+        
+    )
+
     toggleBottomSheet(false); // Close the bottom sheet
   };
 
