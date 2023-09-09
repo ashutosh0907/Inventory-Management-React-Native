@@ -1,26 +1,22 @@
-import { View, Text, StyleSheet } from 'react-native'
-import React from 'react'
-import { BLACK } from '../constants/color'
+import { View, Text } from 'react-native'
+import React, { useState } from 'react'
+import BottomSheetComponent from '../components/BottomSheet'
 
 const Truckunloading = () => {
+    const [isVisible, setIsVisible] = useState(false);
+
     return (
-        <View style={{
-            ...styles.mainContainer
-        }}>
-            <Text style={{
-                color: BLACK,
-                fontSize: 20
-            }}>Truckunloading</Text>
-        </View >
-    )
+        <View>
+            <Text>Truckunloading</Text>
+            <BottomSheetComponent
+                isVisible={isVisible}
+                toggleBottomSheet={() => {
+                    console.log('toggle bottom sheet');
+                    setIsVisible(!isVisible); // Toggle visibility
+                }}
+            />
+        </View>
+    );
 }
 
-const styles = StyleSheet.create({
-    mainContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    }
-})
-
-export default Truckunloading
+export default Truckunloading;
