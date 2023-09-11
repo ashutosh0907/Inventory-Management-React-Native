@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, StatusBar, Modal, TouchableOpacity, FlatList, Image, Pressable } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { BLACK, PINK, WHITE } from '../constants/color';
+import { BLACK, GRAY, PINK, WHITE } from '../constants/color';
 import { HEIGHT, MyStatusBar, WIDTH } from '../constants/config';
-import { ADDIMAGE, CLOSE, DELETE, EXPAND } from '../constants/imagepath';
+import { ADDIMAGE, CAMERA, CLOSE, DELETE, EXPAND, GALLERY } from '../constants/imagepath';
 import * as ImagePicker from 'react-native-image-picker';
 import { ReactNativeZoomableView } from '@openspacelabs/react-native-zoomable-view';
 
@@ -156,7 +156,7 @@ const Truckloading = () => {
             <Modal
                 visible={modal}
                 transparent={true}
-                animationType='fade'
+                animationType='slide'
                 statusBarTranslucent
                 onRequestClose={() => setModal(false)}
             >
@@ -166,46 +166,87 @@ const Truckloading = () => {
                     onPress={() => {
                         setModal(false)
                     }}
-                    style={{ flex: 1, width: WIDTH, backgroundColor: `rgba(100, 100, 100, 0.3)`, alignSelf: 'center', justifyContent: 'center', }}>
+                    style={{ flex: 1, width: WIDTH, backgroundColor: `rgba(100, 100, 100, 0.0)`, alignSelf: 'center', justifyContent: 'center', }}>
                     <View
                         onPress={() => {
                             setModal(false)
                         }}
                         style={{
-                            height: HEIGHT * 0.23,
-                            width: WIDTH * 0.9,
-                            backgroundColor: WHITE,
-                            alignSelf: 'center',
-                            padding: 25,
-                            justifyContent: 'space-between',
-                            borderRadius: 4,
+                            height: HEIGHT * 0.22,
+                            width: WIDTH,
+                            backgroundColor: '#dae0db',
                             elevation: 20,
+                            position: 'absolute',
+                            bottom: 0,
+                            borderTopLeftRadius: 30,
+                            borderTopRightRadius: 30,
+                            justifyContent: 'center'
                         }}>
-                        <Text style={{ color: BLACK, fontSize: 20, fontWeight: 'bold' }}>Action!</Text>
-                        <Text style={{ color: BLACK, fontSize: 20, fontFamily: 'Roboto-Medium' }}>Upload images of the truck for further verification</Text>
-                        <View style={{ alignSelf: 'flex-start', borderRadius: 5, flexDirection: 'row', }}>
+                        <View style={{
+                            width: WIDTH * 0.2,
+                            alignSelf: 'center',
+                            height: HEIGHT * 0.01,
+                            backgroundColor: BLACK,
+                            borderRadius: 10,
+                            position: 'absolute',
+                            top: 0
+                        }}>
+
+                        </View>
+                        <View style={{ alignSelf: 'flex-start', borderRadius: 5, }}>
                             <TouchableOpacity onPress={() => {
-                                setModal(false)
+                                setModal(false);
                                 captureImage('opengallery');
                             }} style={{
-                                backgroundColor: BLACK,
-                                justifyContent: 'center',
+                                width: WIDTH,
+                                height: HEIGHT * 0.06,
+                                // justifyContent: 'center',
                                 alignItems: 'center',
-                                borderRadius: 4,
+                                marginVertical: 10,
+                                flexDirection: 'row'
                             }}>
-                                <Text style={{ color: 'white', fontSize: 17, padding: 10, fontFamily: 'Roboto-Black' }}>Open Gallery</Text>
+                                <View style={{
+                                    width: WIDTH * 0.2,
+                                    height: HEIGHT * 0.06,
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+                                    <Image
+                                        style={{
+                                            width: 35,
+                                            height: 35,
+                                        }}
+                                        resizeMode={'center'}
+                                        source={GALLERY}
+                                    />
+                                </View>
+                                <Text style={{ color: BLACK, fontSize: 17, fontWeight: 'bold' }}>Open Gallery</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => {
                                 setModal(false)
                                 captureImage('capture');
                             }} style={{
-                                backgroundColor: BLACK,
-                                justifyContent: 'center',
+                                width: WIDTH,
+                                height: HEIGHT * 0.06,
                                 alignItems: 'center',
-                                borderRadius: 4,
-                                marginHorizontal: WIDTH * 0.04
+                                flexDirection: 'row'
                             }}>
-                                <Text style={{ color: 'white', fontSize: 17, padding: 10, fontFamily: 'Roboto-Black' }}>Camera</Text>
+                                <View style={{
+                                    width: WIDTH * 0.2,
+                                    height: HEIGHT * 0.06,
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+                                    <Image
+                                        style={{
+                                            width: 35,
+                                            height: 35,
+                                        }}
+                                        resizeMode={'center'}
+                                        source={CAMERA}
+                                    />
+                                </View>
+                                <Text style={{ color: BLACK, fontSize: 17, fontWeight: 'bold' }}>Use Camera</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -281,11 +322,11 @@ const Truckloading = () => {
                 </Pressable >
             </Modal >
             <View style={{
-                width: WIDTH,
                 flex: 1,
                 justifyContent: 'center',
-                // alignItems: imageData.length == 1 ? 'flex-start' : 'center'
-                alignItems: 'flex-start'
+                alignItems: 'flex-start',
+                width: '100%',
+                alignSelf: 'center'
             }}>
                 <Text style={{ color: BLACK, fontSize: 20, fontWeight: 'bold', marginHorizontal: WIDTH * 0.01, }}>Add Images Here!</Text>
 
@@ -302,8 +343,8 @@ const Truckloading = () => {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        height: HEIGHT,
-        width: WIDTH,
+        height: '100%',
+        width: '100%',
         // justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: WHITE
