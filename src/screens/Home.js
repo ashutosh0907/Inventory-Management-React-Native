@@ -1,9 +1,9 @@
-import { View, Text, FlatList, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, StatusBar } from 'react-native'
 import React from 'react'
 import { BACKGROUND, BLACK } from '../constants/color'
 import { HEIGHT, WIDTH } from '../constants/config'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
+import { Card, IconButton, Searchbar } from 'react-native-paper'
 
 
 const Home = ({ navigation }) => {
@@ -20,12 +20,15 @@ const Home = ({ navigation }) => {
 
   const homeView = ({ item }) => {
     return (
+
+      
       <TouchableOpacity onPress={() => {
         navigation.navigate(item.navigateTo)
       }} style={{
-        backgroundColor: 'lightgray',
-        margin: 1,
-        height: HEIGHT * 0.1,
+        backgroundColor: 'cyan',
+        margin: 10,
+        borderRadius:40,
+        height: HEIGHT * 0.07,
         width: WIDTH * 0.4,
         justifyContent: 'center',
         alignItems: 'center'
@@ -39,28 +42,83 @@ const Home = ({ navigation }) => {
   }
   return (
     <SafeAreaView>
-      <View
-        style={{
-          height: HEIGHT,
-          width: WIDTH,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+      <StatusBar
+        backgroundColor={"grey"}
+        barStyle={'light-content'}
+      />
+      <View style={{
+        height: HEIGHT * 0.06,
+        width: WIDTH,
+        flexDirection:'row'
+        // backgroundColor: ,
+      }}>
+        <Text style={{
+          color: BLACK,
+          fontSize: 20,
+          fontWeight: 'bold',
+          textAlign: 'left',
+          margin: 10
 
-        <View style={{
-          width: WIDTH,
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <FlatList
+
+        }}>{'Home'}</Text>
+        <Searchbar
+          placeholder="Search"
+          onChangeText={(text) => {
+            console.log(text)
+          }}
+          style={{
+            width: WIDTH * 0.6,
+            height: HEIGHT * 0.05,
+            borderRadius: 20,
+            // margin: 10,
+            backgroundColor: 'white'
+          }}
+
+
+
+
+        
+        >
+
+        </Searchbar>
+        <IconButton
+          icon="bell"
+          color={BLACK}
+          size={30}
+          onPress={() => {
+            console.log('Pressed')
+          }}
+        
+        />
+    
+        
+        
+
+      </View>
+
+    <Card
+      style={{
+        height: HEIGHT * 0.3,
+        width: WIDTH * 0.9,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        margin: 10,
+        backgroundColor: 'white'
+
+      }}
+
+    
+    >
+       <FlatList
             numColumns={2}
             data={screens}
             renderItem={homeView}
           />
-        </View>
 
-      </View>
+    </Card>
+     
     </SafeAreaView>
   )
 }
