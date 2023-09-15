@@ -5,6 +5,7 @@ import { HEIGHT, MyStatusBar, WIDTH } from '../constants/config'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Card, IconButton, Searchbar } from 'react-native-paper'
 import { LOADER } from '../constants/imagepath'
+import { Loader } from '../components/Loader'
 
 
 const Home = ({ navigation }) => {
@@ -50,6 +51,9 @@ const Home = ({ navigation }) => {
           numColumns={2}
           data={screens}
           renderItem={homeView}
+        />
+        <Loader
+          visible={false}
         />
       </ScrollView>
     </SafeAreaView>
