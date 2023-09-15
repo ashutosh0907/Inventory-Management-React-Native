@@ -1,1 +1,1 @@
-export const BASE_URL = "https://devhitechapi.redesk.in/api/v1/";
+export const BASE_URL = "https://protimes.co.in/sliapi/";

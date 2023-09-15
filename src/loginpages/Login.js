@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, ToastAndroid, ImageBackground, Modal, Pressable, TouchableOpacity, Image, KeyboardAvoidingView } from 'react-native'
+import { Alert, View, Text, StyleSheet, ScrollView, ToastAndroid, ImageBackground, Modal, Pressable, TouchableOpacity, Image, KeyboardAvoidingView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { BLACK, WHITE } from '../constants/color'
 import { storeObjByKey } from '../utils/Storage'
@@ -7,18 +7,50 @@ import { useDispatch } from "react-redux";
 import { GALLERY, LOGO, TRUCK } from '../constants/imagepath'
 import { HEIGHT, MyStatusBar, WIDTH } from '../constants/config'
 import { TextInputName } from '../components/TextInputName'
+import { BASE_URL } from '../constants/url'
+import { POSTNETWORK } from '../utils/Network'
 
 const Login = ({ navigation }) => {
   const dispatch = useDispatch();
   const [showlogin, setLogin] = useState('false');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
       setLogin(true)
     }, 2000)
   }, [])
+
+  const handleLogin = () => {
+    console.log("api")
+    const url = `${BASE_URL}api/login`;
+    const obj = {
+      userid: username,
+      password: password
+    }
+    // setLoader(true);
+    POSTNETWORK(url, obj).then(res => {
+      console.log('res', res.data[0]);
+      // setLoader(true);
+      if (res.Code == 200) {
+        // setLoader(false)
+        storeObjByKey('loginResponse', res.data[0]).then(() => {
+          dispatch(checkuserToken())
+        })
+        ToastAndroid.show(res.msg, ToastAndroid.SHORT)
+        // setLoader(false)
+      }
+      else {
+        Alert.alert(res.msg);
+        // setLoader(false)
+      }
+    }).catch(err => {
+      // setLoader(false)
+    })
+
+  }
   return (
     <React.Fragment>
       <MyStatusBar backgroundColor='#7ca8d5' barStyle={'dark-content'} />
@@ -29,7 +61,7 @@ const Login = ({ navigation }) => {
           <Modal
             visible={showlogin}
             transparent={true}
-            animationType='fa'
+            animationType='fade'
             statusBarTranslucent
             onRequestClose={() => { }}>
             <MyStatusBar backgroundColor='#7ca8d5' barStyle={'dark-content'} />
@@ -88,10 +120,7 @@ const Login = ({ navigation }) => {
                     onChangeText={setPassword}
                   />
                   <TouchableOpacity onPress={() => {
-                    // storeObjByKey('loginResponse', { name: 'Ashutosh', id: 1 }).then(() => {
-                    //   dispatch(checkuserToken());
-                    // })
-                    console.log(username, " : ", password);
+                    handleLogin();
                   }} style={{
                     backgroundColor: 'rgba(100, 100, 100, 0.3)',
                     width: WIDTH * 0.35,
