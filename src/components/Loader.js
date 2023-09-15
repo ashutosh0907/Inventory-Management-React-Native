@@ -2,6 +2,7 @@ import React from "react";
 import { Image, Modal, Pressable, ScrollView, View } from "react-native";
 import { HEIGHT, MyStatusBar } from "../constants/config";
 import { EMI_LOADER, LOADER } from "../constants/imagepath";
+import { WHITE } from "../constants/color";
 
 export const Loader = ({
   visible = false,
@@ -23,15 +24,15 @@ export const Loader = ({
         style={{
           flex: 1,
           justifyContent: 'center',
-          backgroundColor: backgroundColor,
+          backgroundColor: WHITE,
           alignItems: 'center'
         }}>
         <MyStatusBar barStyle={'dark-content'} />
 
         <Image
           style={{
-            height: 100,
-            width: 100
+            height: 130,
+            width: 130
           }}
           source={LOADER}
         />

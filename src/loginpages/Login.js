@@ -9,6 +9,7 @@ import { HEIGHT, MyStatusBar, WIDTH } from '../constants/config'
 import { TextInputName } from '../components/TextInputName'
 import { BASE_URL } from '../constants/url'
 import { POSTNETWORK } from '../utils/Network'
+import { Loader } from '../components/Loader'
 
 const Login = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -24,30 +25,27 @@ const Login = ({ navigation }) => {
   }, [])
 
   const handleLogin = () => {
-    console.log("api")
+    setLoader(true);
     const url = `${BASE_URL}api/login`;
     const obj = {
       userid: username,
       password: password
     }
-    // setLoader(true);
     POSTNETWORK(url, obj).then(res => {
-      console.log('res', res.data[0]);
-      // setLoader(true);
       if (res.Code == 200) {
-        // setLoader(false)
+        setLoader(false);
         storeObjByKey('loginResponse', res.data[0]).then(() => {
           dispatch(checkuserToken())
         })
-        ToastAndroid.show(res.msg, ToastAndroid.SHORT)
-        // setLoader(false)
+        ToastAndroid.show("Login Successful", ToastAndroid.SHORT)
+        setLoader(false)
       }
       else {
         Alert.alert(res.msg);
-        // setLoader(false)
+        setLoader(false)
       }
     }).catch(err => {
-      // setLoader(false)
+      setLoader(false)
     })
 
   }
@@ -58,6 +56,7 @@ const Login = ({ navigation }) => {
         flex: 1
       }}>
         <ImageBackground resizeMode='cover' source={TRUCK} style={styles.image}>
+          <Loader visible={loader} />
           <Modal
             visible={showlogin}
             transparent={true}
