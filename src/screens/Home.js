@@ -1,9 +1,10 @@
-import { View, Text, FlatList, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, StatusBar, Image, ScrollView } from 'react-native'
 import React from 'react'
 import { BACKGROUND, BLACK } from '../constants/color'
 import { HEIGHT, MyStatusBar, WIDTH } from '../constants/config'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Card, IconButton, Searchbar } from 'react-native-paper'
+import { LOADER } from '../constants/imagepath'
 
 
 const Home = ({ navigation }) => {
