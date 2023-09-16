@@ -33,7 +33,6 @@ const Login = ({ navigation }) => {
     }
     POSTNETWORK(url, obj).then(res => {
       if (res.Code == 200) {
-        setLoader(false);
         storeObjByKey('loginResponse', res.data[0]).then(() => {
           dispatch(checkuserToken())
         })

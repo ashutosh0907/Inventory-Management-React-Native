@@ -6,7 +6,7 @@ const Splash = ({ navigation }) => {
     useEffect(() => {
         setTimeout(() => {
             navigation.navigate('Login');
-        }, 2000)
+        }, 3000)
     }, [])
     return (
         <View style={{

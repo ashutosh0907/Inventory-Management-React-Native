@@ -1,21 +1,21 @@
-import { View, Text, StyleSheet, StatusBar, Modal, TouchableOpacity, FlatList, Image, Pressable } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { BLACK, GRAY, PINK, WHITE } from '../constants/color';
-import { HEIGHT, MyStatusBar, WIDTH } from '../constants/config';
-import { ADDIMAGE, CAMERA, CLOSE, DELETE, EXPAND, GALLERY } from '../constants/imagepath';
+import { View, Text, ScrollView, Image, Pressable, StyleSheet, Alert } from 'react-native'
+import React, { useState } from 'react'
+import { TextInputNumber } from '../components/TextInputNumber'
+import { TextInputName } from '../components/TextInputName'
+import { ADDIMAGE, DELETE, LORRY, MATERIAL, SCANNER, SELFIE } from '../constants/imagepath'
+import { HEIGHT, MyStatusBar, WIDTH } from '../constants/config'
+import { BLACK, WHITE } from '../constants/color'
+import LinearGradient from 'react-native-linear-gradient'
 import * as ImagePicker from 'react-native-image-picker';
-import { ReactNativeZoomableView } from '@openspacelabs/react-native-zoomable-view';
+import { Loader } from '../components/Loader'
 
 const Truckloading = () => {
-    const [modal, setModal] = useState(false);
-    const [expand, setExpand] = useState('');
-    const [expandedModal, setExpandedModal] = useState({ visible: false, image: '' });
-    const [imageData, setImageData] = useState([{ image: ADDIMAGE },]);
-    useEffect(() => {
-
-    }, [])
+    const [barcodeNumber, setBarcodeNumber] = useState('')
+    const [loader, setLoader] = useState(false)
+    const [images, setImages] = useState({ lorry: '', material: '', selfie: '' });
 
     const captureImage = async (type) => {
+        console.log("TYPE----->", type)
         let options = {
             storageOption: {
                 path: "images",
@@ -26,81 +26,86 @@ const Truckloading = () => {
             selectionLimit: 4,
             presentationStyle: "formSheet"
         };
-        if (type === 'capture') {
+        if (true) {
             ImagePicker.launchCamera(options, ((response) => {
                 if (response.didCancel == undefined) {
-                    setImageData([{ image: response.assets[0].uri }, ...imageData])
-                }
-            }));
-        } else {
-            ImagePicker.launchImageLibrary(options, ((response) => {
-                if (response.didCancel == undefined) {
-                    if (response.assets.length > 1) {
-                        let data = [];
-                        response.assets.map((obj, index) => {
-                            data.push({ image: obj.uri });
+                    if (type == "LORRY") {
+                        setImages({
+                            lorry: response.assets[0].uri,
+                            material: images.material,
+                            selfie: images.selfie
                         })
-                        setImageData([...data, ...imageData]);
-                    } else {
-                        setImageData([{ image: response.assets[0].uri }, ...imageData])
+                    }
+                    else if (type == "MATERIAL") {
+                        setImages({
+                            material: response.assets[0].uri,
+                            selfie: images.selfie,
+                            lorry: images.lorry
+                        })
+                    }
+                    else if (type == "SELFIE") {
+                        setImages({
+                            selfie: response.assets[0].uri,
+                            material: images.material,
+                            lorry: images.lorry
+                        })
                     }
                 }
             }));
         }
+        // else {
+        //     ImagePicker.launchImageLibrary(options, ((response) => {
+        //         if (response.didCancel == undefined) {
+        //             if (response.assets.length > 1) {
+        //                 let data = [];
+        //                 response.assets.map((obj, index) => {
+        //                     data.push({ image: obj.uri });
+        //                 })
+        //                 setImageData([...data, ...imageData]);
+        //             } else {
+        //                 setImageData([{ image: response.assets[0].uri }, ...imageData])
+        //             }
+        //         }
+        //     }));
+        // }
     };
 
-    const handleDelete = (item) => {
-        const { image } = item;
-        let data = imageData;
-        let updatedData = data.filter((obj, index) => {
-            return obj.image != image;
-        })
-        setImageData(updatedData);
-    }
-    const handleExpand = (image) => {
-        setExpand(image)
-        setTimeout(() => {
-            setExpand('');
-        }, 4000)
-    }
-    const expandImage = (image) => {
-        console.log(image)
-        setExpandedModal({ visible: true, image: image })
-    }
-
-
-    const addImageContainer = ({ item }) => {
-        const { image } = item;
+    const Imagebox = ({ source, type }) => {
         return (
-            <Pressable
-                onPress={() => {
-                    if (item.image == ADDIMAGE) {
-                        setModal(true)
-                    } else {
-                        handleExpand(image);
-                    }
-                }}
+            <LinearGradient
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                colors={['white', '#183a51',]}
                 style={{
-                    width: WIDTH * 0.3,
-                    height: HEIGHT * 0.18,
+                    width: WIDTH * 0.28,
+                    height: HEIGHT * 0.17,
                     backgroundColor: WHITE,
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginHorizontal: WIDTH * 0.01,
                     marginVertical: HEIGHT * 0.01,
                     alignSelf: 'center',
-                    borderWidth: 1,
-                    borderBlockColor: BLACK,
-                    borderBottomWidth: 10
+                    borderRadius: 4,
                 }}>
-                <Image
-                    style={{
-                        width: item.image == ADDIMAGE ? WIDTH * 0.2 : WIDTH * 0.29,
-                        height: item.image == ADDIMAGE ? HEIGHT * 0.08 : HEIGHT * 0.16,
+                <Pressable
+                    onPress={() => {
+                        captureImage(type)
                     }}
-                    resizeMode={item.image == ADDIMAGE ? 'center' : 'cover'}
-                    source={item.image == ADDIMAGE ? ADDIMAGE : { uri: item.image }}
-                />
+                    style={{
+                        height: '100%',
+                        width: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                    <Image
+                        style={{
+                            width: 40,
+                            height: 40,
+                        }}
+                        resizeMode={'center'}
+                        source={source}
+                    />
+                    {/* 
                 {item.image != ADDIMAGE &&
                     <View style={{
                         width: '100%',
@@ -131,7 +136,7 @@ const Truckloading = () => {
                             alignItems: 'center'
                         }}>
                             <Pressable onPress={() => {
-                                expandImage(item.image);
+                                // expandImage(item.image);
                             }}>
                                 <Image
                                     style={{
@@ -144,211 +149,168 @@ const Truckloading = () => {
                             </Pressable>
                         </View>}
                     </View>
-                }
-            </Pressable>
+                } */}
+                </Pressable>
+            </LinearGradient>
         )
     }
     return (
-        <View style={{
-            ...styles.mainContainer
-        }}>
-            <MyStatusBar backgroundColor={WHITE} barStyle={'dark-content'} />
-            <Modal
-                visible={modal}
-                transparent={true}
-                animationType='slide'
-                statusBarTranslucent
-                onRequestClose={() => setModal(false)}
-            >
-                <StatusBar backgroundColor='white' barStyle={'dark-content'} />
-                {/* `rgba(100, 100, 100, 0.5)` `rgba(0,0, 0,0)`*/}
-                <Pressable
-                    onPress={() => {
-                        setModal(false)
-                    }}
-                    style={{ flex: 1, width: WIDTH, backgroundColor: `rgba(100, 100, 100, 0.0)`, alignSelf: 'center', justifyContent: 'center', }}>
-                    <View
-                        onPress={() => {
-                            setModal(false)
-                        }}
-                        style={{
-                            height: HEIGHT * 0.22,
-                            width: WIDTH,
-                            backgroundColor: '#dae0db',
-                            elevation: 20,
-                            position: 'absolute',
-                            bottom: 0,
-                            borderTopLeftRadius: 30,
-                            borderTopRightRadius: 30,
-                            justifyContent: 'center'
-                        }}>
-                        <View style={{
-                            width: WIDTH * 0.2,
-                            alignSelf: 'center',
-                            height: HEIGHT * 0.01,
-                            backgroundColor: BLACK,
-                            borderRadius: 10,
-                            position: 'absolute',
-                            top: 0
-                        }}>
-
-                        </View>
-                        <View style={{ alignSelf: 'flex-start', borderRadius: 5, }}>
-                            <TouchableOpacity onPress={() => {
-                                setModal(false);
-                                captureImage('opengallery');
-                            }} style={{
-                                width: WIDTH,
-                                height: HEIGHT * 0.06,
-                                // justifyContent: 'center',
-                                alignItems: 'center',
-                                marginVertical: 10,
-                                flexDirection: 'row'
-                            }}>
-                                <View style={{
-                                    width: WIDTH * 0.2,
-                                    height: HEIGHT * 0.06,
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}>
-                                    <Image
-                                        style={{
-                                            width: 35,
-                                            height: 35,
-                                        }}
-                                        resizeMode={'center'}
-                                        source={GALLERY}
-                                    />
-                                </View>
-                                <Text style={{ color: BLACK, fontSize: 17, fontWeight: 'bold' }}>Open Gallery</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {
-                                setModal(false)
-                                captureImage('capture');
-                            }} style={{
-                                width: WIDTH,
-                                height: HEIGHT * 0.06,
-                                alignItems: 'center',
-                                flexDirection: 'row'
-                            }}>
-                                <View style={{
-                                    width: WIDTH * 0.2,
-                                    height: HEIGHT * 0.06,
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}>
-                                    <Image
-                                        style={{
-                                            width: 35,
-                                            height: 35,
-                                        }}
-                                        resizeMode={'center'}
-                                        source={CAMERA}
-                                    />
-                                </View>
-                                <Text style={{ color: BLACK, fontSize: 17, fontWeight: 'bold' }}>Use Camera</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Pressable >
-            </Modal >
-            <Modal
-                visible={expandedModal.visible}
-                transparent={true}
-                animationType='fade'
-                statusBarTranslucent
-                onRequestClose={() => setExpandedModal({ visible: false, image: '' })}
-            >
-                <MyStatusBar backgroundColor='white' barStyle={'dark-content'} />
-                <Pressable
-                    onPress={() => {
-                        setExpandedModal({ visible: false, image: '' })
-                    }}
-                    style={{ flex: 1, width: WIDTH, backgroundColor: `rgba(100, 100, 100, 0.3)`, alignSelf: 'center', justifyContent: 'center', }}>
-
-                    <View style={{
-                        height: HEIGHT * 0.7,
-                        width: WIDTH * 0.9,
-                        backgroundColor: WHITE,
-                        alignSelf: 'center',
-                        padding: 20,
-                        justifyContent: 'space-between',
-                        borderRadius: 4,
-                        elevation: 20,
-                    }}>
-                        <View style={{
-                            width: '100%',
-                            alignSelf: 'center',
-                            alignItems: 'flex-end',
-                            marginVertical: 10,
-                            position: 'absolute',
-                            zIndex: 1,
-                        }}>
-                            <Pressable onPress={() => {
-                                setExpandedModal({ visible: false, image: '' })
-                            }}>
-                                <Image
-                                    style={{
-                                        width: 35,
-                                        height: 35,
-                                    }}
-                                    resizeMode={'center'}
-                                    source={CLOSE}
-                                />
-                            </Pressable>
-                        </View>
-                        <ReactNativeZoomableView
-                            maxZoom={30}
-                            initialZoom={1}
-                            bindToBorders={true}
-                        >
-                            <View style={{
-                                flex: 1,
-                                width: '100%',
-                                height: '60%',
-                                justifyContent: 'center'
-                            }}>
-                                <Image
-                                    style={{
-                                        width: '100%',
-                                        height: '70%',
-                                    }}
-                                    resizeMode={'center'}
-                                    source={{ uri: expandedModal?.image }}
-                                />
-                            </View>
-                        </ReactNativeZoomableView>
-                    </View>
-                </Pressable >
-            </Modal >
-            <View style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'flex-start',
-                width: '100%',
-                alignSelf: 'center'
+        <React.Fragment>
+            <Loader visible={loader} />
+            <ScrollView contentContainerStyle={{
+                height: HEIGHT,
+                width: WIDTH,
+                alignItems: 'center',
             }}>
-                <Text style={{ color: BLACK, fontSize: 20, fontWeight: 'bold', marginHorizontal: WIDTH * 0.01, }}>Add Images Here!</Text>
-
-                <FlatList
-                    numColumns={3}
-                    data={imageData}
-                    renderItem={addImageContainer}
-                />
-            </View>
-        </View>
+                <View style={{ ...styles.flexRowContainer }}>
+                    <TextInputName
+                        value={barcodeNumber}
+                        title='Barcode Number'
+                        placeholder='Barcode Number'
+                        width='74%'
+                        onChangeText={setBarcodeNumber}
+                    />
+                    <Pressable
+                        onPress={() => {
+                            Alert.alert('open sacanner')
+                        }}
+                        style={{ ...styles.scannerImageContainer }}>
+                        <Image
+                            style={{
+                                width: 40,
+                                height: 40,
+                            }}
+                            resizeMode={'center'}
+                            source={SCANNER}
+                        />
+                    </Pressable>
+                </View>
+                <View style={{ ...styles.flexRowContainer }}>
+                    <TextInputName
+                        value={barcodeNumber}
+                        title='Challan Number'
+                        placeholder='Challan Number'
+                        width='45%'
+                        onChangeText={setBarcodeNumber}
+                    />
+                    <TextInputName
+                        value={barcodeNumber}
+                        title='Challan Date'
+                        placeholder='Challan Date'
+                        width='45%'
+                        onChangeText={setBarcodeNumber}
+                    />
+                </View>
+                <View style={{ ...styles.flexRowContainer }}>
+                    <TextInputName
+                        value={barcodeNumber}
+                        title='Commodity'
+                        placeholder='Challan Number'
+                        width='45%'
+                        onChangeText={setBarcodeNumber}
+                    />
+                    <TextInputName
+                        value={barcodeNumber}
+                        title='Grade'
+                        placeholder='Challan Date'
+                        width='45%'
+                        onChangeText={setBarcodeNumber}
+                    />
+                </View>
+                <View style={{ ...styles.flexRowContainer }}>
+                    <TextInputName
+                        value={barcodeNumber}
+                        title='Lorry Number'
+                        placeholder='Lorry Number'
+                        width='94%'
+                        onChangeText={setBarcodeNumber}
+                    />
+                </View>
+                <View style={{ ...styles.flexRowContainer }}>
+                    <TextInputName
+                        value={barcodeNumber}
+                        title='Driver Name'
+                        placeholder='Driver Name'
+                        width='94%'
+                        onChangeText={setBarcodeNumber}
+                    />
+                </View>
+                <View style={{ ...styles.flexRowContainer }}>
+                    <TextInputName
+                        value={barcodeNumber}
+                        title='Mobile Number'
+                        placeholder='Mobile Number'
+                        width='45%'
+                        onChangeText={setBarcodeNumber}
+                    />
+                    <TextInputName
+                        value={barcodeNumber}
+                        title='Weight'
+                        placeholder='Weight'
+                        width='45%'
+                        onChangeText={setBarcodeNumber}
+                    />
+                </View>
+                <View style={{ ...styles.flexRowContainer }}>
+                    <Imagebox source={LORRY} type={'LORRY'} />
+                    <Imagebox source={MATERIAL} type={'MATERIAL'} />
+                    <Imagebox source={SELFIE} type={'SELFIE'} />
+                </View>
+                <View style={{ ...styles.flexRowContainer }}>
+                    <LinearGradient
+                        start={{ x: 0, y: 1 }}
+                        end={{ x: 1, y: 1 }}
+                        colors={['#183a51', '#21495f', 'white',]}
+                        style={{ ...styles.saveContainer }}>
+                        <Pressable
+                            onPress={() => {
+                                console.log("first", images)
+                                setLoader(true)
+                                setTimeout(() => {
+                                    setLoader(false)
+                                }, 2000)
+                            }}
+                            style={{ ...styles.saveContainerPressable }}>
+                            <View>
+                                <Text style={{
+                                    ...styles.saveTextstyle
+                                }}>Save</Text>
+                            </View>
+                        </Pressable>
+                    </LinearGradient>
+                </View>
+            </ScrollView>
+        </React.Fragment>
     )
 }
-
 const styles = StyleSheet.create({
-    mainContainer: {
-        flex: 1,
-        height: '100%',
+    flexRowContainer: {
         width: '100%',
-        // justifyContent: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        marginVertical: HEIGHT * 0.008
+    },
+    scannerImageContainer: {
+        width: '16%',
+        justifyContent: 'flex-end',
         alignItems: 'center',
-        backgroundColor: WHITE
+        paddingBottom: 5
+    },
+    saveTextstyle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: WHITE
+    },
+    saveContainer: {
+        width: '92%',
+        height: HEIGHT * 0.07,
+        borderRadius: 5,
+    },
+    saveContainerPressable: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })
-
 export default Truckloading
