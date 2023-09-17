@@ -49,10 +49,10 @@ export const TextInputName = ({
             <TextInput
               editable={true}
               onChangeText={(txt) => {
-                if (!/[0-9,.*-@]/.test(txt.slice(-1))) {
-                  onChangeText(txt);
-                } else {
-                }
+                // if (!/[0-9,.*-@]/.test(txt.slice(-1))) {
+                onChangeText(txt);
+                // } else {
+                // }
               }}
               value={value}
               // keyboardType="default"

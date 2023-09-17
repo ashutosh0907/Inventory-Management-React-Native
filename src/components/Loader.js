@@ -12,42 +12,42 @@ export const Loader = ({
   backgroundColor = `rgba(100, 100, 100, 0.5)`,
 }) => {
   return (
-    <React.Fragment><MyStatusBar barStyle={'dark-content'} />
-      <Modal
-        visible={visible}
-        transparent={true}
-        animationType='fade'
-        statusBarTranslucent
-        onRequestClose={() => onBackPress != undefined && onBackPress(false)}
-      >
-        <View style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(100, 100, 100, 0.5)'
-        }}>
-          <Pressable
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType='fade'
+      statusBarTranslucent
+      onRequestClose={() => onBackPress != undefined && onBackPress(false)}
+    >
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(100, 100, 100, 0.5)',
+      }}>
+        <Pressable
+          style={{
+            // flex: 1,
+            // width: '37%',
+            // height: '17%',
+            width: 160,
+            height: 160,
+            justifyContent: 'center',
+            backgroundColor: WHITE,
+            alignItems: 'center',
+            borderRadius: 100
+          }}>
+
+          <Image
             style={{
-              // flex: 1,
-              width: WIDTH * 0.4,
-              height: HEIGHT * 0.14,
-              justifyContent: 'center',
-              backgroundColor: WHITE,
-              alignItems: 'center',
-              borderRadius: 10
-            }}>
+              height: 130,
+              width: 130
+            }}
+            source={LOADER}
+          />
+        </Pressable>
+      </View>
 
-            <Image
-              style={{
-                height: 130,
-                width: 130
-              }}
-              source={LOADER}
-            />
-          </Pressable>
-        </View>
-
-      </Modal>
-    </React.Fragment>
+    </Modal>
   )
 }

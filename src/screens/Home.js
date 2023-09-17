@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity, StatusBar, Image, ScrollView, Pressable, StyleSheet } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, StatusBar, Image, ScrollView, Pressable, StyleSheet, Alert, BackHandler } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { BACKGROUND, BLACK, GRAY, WHITE } from '../constants/color'
 import { HEIGHT, MyStatusBar, WIDTH } from '../constants/config'
@@ -10,11 +10,47 @@ import LinearGradient from 'react-native-linear-gradient'
 import Truckloading from './Truckloading'
 import TruckUnloading from './Truckunloading'
 import { getObjByKey } from '../utils/Storage'
+import CameraOpentoScan from '../components/CameraOpentoScan'
+import { useFocusEffect } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { checkuserToken } from '../redux/actions/auth'
+import { useDispatch, } from 'react-redux';
 
 
 const Home = ({ navigation }) => {
+  const dispatch = useDispatch();
   const [page, setPage] = useState(0)
   const [username, setUsername] = useState('user')
+  const [loader, setLoader] = useState(false)
+  const [scanner, setScanner] = useState(false)
+  const [barcodeInNumber, setBarcodeInNumber] = useState('')
+  const [barcodeOutNumber, setBarcodeOutNumber] = useState('')
+
+  useFocusEffect(() => {
+    const backAction = () => {
+      if (scanner == false && page == 0) {
+        Alert.alert('', 'Are you sure you want to exit app ?', [
+          {
+            text: 'Cancel',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          { text: 'YES', onPress: () => BackHandler.exitApp() },
+        ]);
+      }
+      else if (scanner == false && page == 1) {
+        // setScanner(false)
+        setPage(0)
+      }
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => backHandler.remove();
+  });
 
   useEffect(() => {
     getUserData();
@@ -23,12 +59,30 @@ const Home = ({ navigation }) => {
   const getUserData = async () => {
     let userdata = await getObjByKey('loginResponse');
     console.log(userdata)
-    setUsername(userdata.usr_name);
+    setUsername(userdata.name);
+  }
+
+  const showLoader = (boolean) => {
+    setLoader(boolean)
+  }
+  const showScanner = (boolean) => {
+    setScanner(boolean)
+  }
+  const getBarcodeInNumber = (number) => {
+    console.log("barcodenumber In NUMBER", number)
+    setBarcodeInNumber(number);
+  }
+  const getBarcodeOutNumber = (number) => {
+    console.log("barcodenumber OUT NUMBER", number)
+    setBarcodeOutNumber(number);
   }
 
   return (
     <React.Fragment>
       <MyStatusBar backgroundColor={'#21495f'} barStyle={'light-content'} />
+      <Loader visible={loader} />
+      {scanner && page == 0 && <CameraOpentoScan showScanner={showScanner} getBarcodeNumber={getBarcodeInNumber} />}
+      {scanner && page == 1 && <CameraOpentoScan showScanner={showScanner} getBarcodeNumber={getBarcodeOutNumber} />}
       <LinearGradient
         start={{ x: 1, y: 0 }}
         end={{ x: 0, y: 1 }}
@@ -37,11 +91,18 @@ const Home = ({ navigation }) => {
           flex: 1
         }}>
         <View style={{ ...styles.profileContainer }}>
-          <View style={{
-            width: '20%',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}>
+          <Pressable
+            onPress={() => {
+              AsyncStorage.clear().then(() => {
+                dispatch(checkuserToken())
+                // logoutUser()
+              })
+            }}
+            style={{
+              width: '20%',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
             <Image
               tintColor={WHITE}
               style={{
@@ -51,7 +112,7 @@ const Home = ({ navigation }) => {
               resizeMode={'contain'}
               source={PROFILE}
             />
-          </View>
+          </Pressable>
           <View style={{
             justifyContent: 'center'
           }}>
@@ -63,7 +124,6 @@ const Home = ({ navigation }) => {
               {username} !
             </Text>
           </View>
-
         </View>
 
         <View style={{ ...styles.switchContainer }}>
@@ -103,7 +163,9 @@ const Home = ({ navigation }) => {
             </LinearGradient>
           </View>
         </View>
-        {page == 0 ? <Truckloading /> : <TruckUnloading />}
+        {page == 0 && <Truckloading barcodeinnumber={barcodeInNumber} loader={showLoader} scanner={showScanner} />}
+        {page == 1 && <TruckUnloading barcodeoutnumber={barcodeOutNumber} loader={showLoader} scanner={showScanner} />}
+
       </LinearGradient>
     </React.Fragment>
   )

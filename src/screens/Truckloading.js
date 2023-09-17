@@ -1,18 +1,65 @@
-import { View, Text, ScrollView, Image, Pressable, StyleSheet, Alert } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, ScrollView, Image, Pressable, StyleSheet, Alert, ToastAndroid } from 'react-native'
+import React, { useState, useEffect } from 'react'
 import { TextInputNumber } from '../components/TextInputNumber'
 import { TextInputName } from '../components/TextInputName'
-import { ADDIMAGE, DELETE, LORRY, MATERIAL, SCANNER, SELFIE } from '../constants/imagepath'
+import { ADDIMAGE, DELETE, EXPAND, LORRY, MATERIAL, SCANNER, SELFIE } from '../constants/imagepath'
 import { HEIGHT, MyStatusBar, WIDTH } from '../constants/config'
 import { BLACK, WHITE } from '../constants/color'
 import LinearGradient from 'react-native-linear-gradient'
 import * as ImagePicker from 'react-native-image-picker';
 import { Loader } from '../components/Loader'
+import CameraOpentoScan from '../components/CameraOpentoScan'
+import { GETNETWORK } from '../utils/Network'
+import { BASE_URL } from '../constants/url'
 
-const Truckloading = () => {
-    const [barcodeNumber, setBarcodeNumber] = useState('')
-    const [loader, setLoader] = useState(false)
-    const [images, setImages] = useState({ lorry: '', material: '', selfie: '' });
+const Truckloading = ({ loader, scanner, barcodeinnumber }) => {
+    const [barcodeno, setBarcodeNumber] = useState('')
+    const [challanno, setChallanNumber] = useState('')
+    const [challanndate, setChallanDate] = useState('')
+    const [commodity, setCommodity] = useState('')
+    const [grade, setGrade] = useState('')
+    const [lorrynumber, setLorryNumber] = useState('')
+    const [drivername, setDriverName] = useState('')
+    const [mobilenumber, setMobileNumber] = useState('')
+    const [weight, setWeight] = useState('')
+    const [lorryimage, setLorryImage] = useState('')
+    const [materialimage, setMaterialImage] = useState('')
+    const [selfieimage, setSelfieImage] = useState('')
+
+    useEffect(() => {
+        setBarcodeNumber(barcodeinnumber)
+        console.log(barcodeinnumber)
+        if (barcodeinnumber != '' && barcodeinnumber != null) {
+            getDetails();
+        }
+    }, [barcodeinnumber])
+
+    const getDetails = async () => {
+        loader(true)
+        const url = `${BASE_URL}api/findbarcode/${barcodeinnumber}`;
+        console.log("URL_IS ---------> ", url)
+        GETNETWORK(url).then(res => {
+            if (res.Code == 200) {
+                setBarcodeNumber(res.data_value[0].Barcode)
+                setChallanNumber(res.data_value[0].ChallanNo)
+                setChallanDate(res.data_value[0].ChallanDate)
+                setCommodity(res.data_value[0].Commodity)
+                setGrade(res.data_value[0].Grade)
+                setLorryNumber(res.data_value[0].LorryNo)
+                setDriverName(res.data_value[0].DriverName)
+                setMobileNumber(res.data_value[0].MobileNo)
+                setWeight(res.data_value[0].Weight)
+                ToastAndroid.show("Fetching Complete!", ToastAndroid.SHORT)
+                loader(false)
+            }
+            else {
+                Alert.alert(res.msg);
+                loader(false)
+            }
+        }).catch(err => {
+            loader(false)
+        })
+    }
 
     const captureImage = async (type) => {
         console.log("TYPE----->", type)
@@ -30,141 +77,43 @@ const Truckloading = () => {
             ImagePicker.launchCamera(options, ((response) => {
                 if (response.didCancel == undefined) {
                     if (type == "LORRY") {
-                        setImages({
-                            lorry: response.assets[0].uri,
-                            material: images.material,
-                            selfie: images.selfie
-                        })
+                        setLorryImage(response.assets[0].uri)
                     }
                     else if (type == "MATERIAL") {
-                        setImages({
-                            material: response.assets[0].uri,
-                            selfie: images.selfie,
-                            lorry: images.lorry
-                        })
+                        setMaterialImage(response.assets[0].uri);
                     }
                     else if (type == "SELFIE") {
-                        setImages({
-                            selfie: response.assets[0].uri,
-                            material: images.material,
-                            lorry: images.lorry
-                        })
+                        setSelfieImage(response.assets[0].uri);
                     }
                 }
             }));
         }
-        // else {
-        //     ImagePicker.launchImageLibrary(options, ((response) => {
-        //         if (response.didCancel == undefined) {
-        //             if (response.assets.length > 1) {
-        //                 let data = [];
-        //                 response.assets.map((obj, index) => {
-        //                     data.push({ image: obj.uri });
-        //                 })
-        //                 setImageData([...data, ...imageData]);
-        //             } else {
-        //                 setImageData([{ image: response.assets[0].uri }, ...imageData])
-        //             }
-        //         }
-        //     }));
-        // }
     };
 
-    const Imagebox = ({ source, type }) => {
-        return (
-            <LinearGradient
-                start={{ x: 1, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                colors={['white', '#183a51',]}
-                style={{
-                    width: WIDTH * 0.28,
-                    height: HEIGHT * 0.17,
-                    backgroundColor: WHITE,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginHorizontal: WIDTH * 0.01,
-                    marginVertical: HEIGHT * 0.01,
-                    alignSelf: 'center',
-                    borderRadius: 4,
-                }}>
-                <Pressable
-                    onPress={() => {
-                        captureImage(type)
-                    }}
-                    style={{
-                        height: '100%',
-                        width: '100%',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                    }}>
-                    <Image
-                        style={{
-                            width: 40,
-                            height: 40,
-                        }}
-                        resizeMode={'center'}
-                        source={source}
-                    />
-                    {/* 
-                {item.image != ADDIMAGE &&
-                    <View style={{
-                        width: '100%',
-                        height: '100%',
-                        position: 'absolute',
-                    }}>
-                        <View style={{
-                            width: '98%',
-                            alignSelf: 'center',
-                            alignItems: 'flex-end'
-                        }}>
-                            <Pressable onPress={() => {
-                                handleDelete(item);
-                            }}>
-                                <Image
-                                    style={{
-                                        width: 35,
-                                        height: 35,
-                                    }}
-                                    resizeMode={'center'}
-                                    source={DELETE}
-                                />
-                            </Pressable>
-                        </View>
-                        {item.image == expand && <View style={{
-                            height: '60%',
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }}>
-                            <Pressable onPress={() => {
-                                // expandImage(item.image);
-                            }}>
-                                <Image
-                                    style={{
-                                        width: 35,
-                                        height: 35,
-                                    }}
-                                    resizeMode={'center'}
-                                    source={EXPAND}
-                                />
-                            </Pressable>
-                        </View>}
-                    </View>
-                } */}
-                </Pressable>
-            </LinearGradient>
-        )
+    const handleDelete = (type, uri) => {
+        if (type == "LORRY") {
+            setLorryImage('');
+        }
+        else if (type == "MATERIAL") {
+            setMaterialImage('')
+        }
+        else {
+            setSelfieImage('')
+        }
     }
+
     return (
         <React.Fragment>
-            <Loader visible={loader} />
-            <ScrollView contentContainerStyle={{
-                height: HEIGHT,
-                width: WIDTH,
-                alignItems: 'center',
-            }}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                    height: HEIGHT,
+                    width: WIDTH,
+                    alignItems: 'center',
+                }}>
                 <View style={{ ...styles.flexRowContainer }}>
                     <TextInputName
-                        value={barcodeNumber}
+                        value={barcodeno}
                         title='Barcode Number'
                         placeholder='Barcode Number'
                         width='74%'
@@ -172,7 +121,7 @@ const Truckloading = () => {
                     />
                     <Pressable
                         onPress={() => {
-                            Alert.alert('open sacanner')
+                            scanner(true)
                         }}
                         style={{ ...styles.scannerImageContainer }}>
                         <Image
@@ -187,74 +136,233 @@ const Truckloading = () => {
                 </View>
                 <View style={{ ...styles.flexRowContainer }}>
                     <TextInputName
-                        value={barcodeNumber}
+                        value={`${challanno}`}
                         title='Challan Number'
                         placeholder='Challan Number'
                         width='45%'
-                        onChangeText={setBarcodeNumber}
+                        onChangeText={setChallanNumber}
                     />
                     <TextInputName
-                        value={barcodeNumber}
+                        value={challanndate}
                         title='Challan Date'
                         placeholder='Challan Date'
                         width='45%'
-                        onChangeText={setBarcodeNumber}
+                        onChangeText={setChallanDate}
                     />
                 </View>
                 <View style={{ ...styles.flexRowContainer }}>
                     <TextInputName
-                        value={barcodeNumber}
+                        value={commodity}
                         title='Commodity'
-                        placeholder='Challan Number'
+                        placeholder='Commodity'
                         width='45%'
-                        onChangeText={setBarcodeNumber}
+                        onChangeText={setCommodity}
                     />
                     <TextInputName
-                        value={barcodeNumber}
+                        value={grade}
                         title='Grade'
-                        placeholder='Challan Date'
+                        placeholder='Grade'
                         width='45%'
-                        onChangeText={setBarcodeNumber}
+                        onChangeText={setGrade}
                     />
                 </View>
                 <View style={{ ...styles.flexRowContainer }}>
                     <TextInputName
-                        value={barcodeNumber}
+                        value={lorrynumber}
                         title='Lorry Number'
                         placeholder='Lorry Number'
                         width='94%'
-                        onChangeText={setBarcodeNumber}
+                        onChangeText={setLorryNumber}
                     />
                 </View>
                 <View style={{ ...styles.flexRowContainer }}>
                     <TextInputName
-                        value={barcodeNumber}
+                        value={drivername}
                         title='Driver Name'
                         placeholder='Driver Name'
                         width='94%'
-                        onChangeText={setBarcodeNumber}
+                        onChangeText={setDriverName}
                     />
                 </View>
                 <View style={{ ...styles.flexRowContainer }}>
                     <TextInputName
-                        value={barcodeNumber}
+                        value={mobilenumber}
                         title='Mobile Number'
                         placeholder='Mobile Number'
                         width='45%'
-                        onChangeText={setBarcodeNumber}
+                        onChangeText={setMobileNumber}
                     />
                     <TextInputName
-                        value={barcodeNumber}
+                        value={`${weight}`}
                         title='Weight'
                         placeholder='Weight'
                         width='45%'
-                        onChangeText={setBarcodeNumber}
+                        onChangeText={setWeight}
                     />
                 </View>
+                <View style={{
+                    width: '92%',
+                }}>
+                    <Text style={{
+                        color: BLACK,
+                        fontWeight: 'bold',
+                        fontSize: 16,
+                    }}>
+                        Upload Images
+                    </Text>
+                </View>
                 <View style={{ ...styles.flexRowContainer }}>
-                    <Imagebox source={LORRY} type={'LORRY'} />
-                    <Imagebox source={MATERIAL} type={'MATERIAL'} />
-                    <Imagebox source={SELFIE} type={'SELFIE'} />
+                    <LinearGradient
+                        start={{ x: 1, y: 0 }}
+                        end={{ x: 0, y: 1 }}
+                        colors={['white', '#183a51',]}
+                        style={{ ...styles.imageBoxContainer }}>
+                        <Pressable
+                            onPress={() => {
+                                captureImage("LORRY")
+                            }}
+                            style={{ ...styles.imageBoxPressable }}>
+                            <Image
+                                style={{
+                                    width: lorryimage ? '100%' : 40,
+                                    height: lorryimage ? '100%' : 40,
+                                }}
+                                resizeMode={'center'}
+                                source={lorryimage ? { uri: lorryimage } : LORRY}
+                            />
+                            {lorryimage && <View style={{ ...styles.capturedImageContainer }}>
+                                <View style={{ ...styles.deleteButton }}>
+                                    <Pressable onPress={() => {
+                                        handleDelete("LORRY", lorryimage);
+                                    }}>
+                                        <Image
+                                            style={{
+                                                width: 35,
+                                                height: 35,
+                                            }}
+                                            resizeMode={'center'}
+                                            source={DELETE}
+                                        />
+                                    </Pressable>
+                                </View>
+                                <View style={{ ...styles.expandButton }}>
+                                    <Pressable onPress={() => {
+                                        // expandImage(lorryimage);
+                                    }}>
+                                        <Image
+                                            style={{
+                                                width: 35,
+                                                height: 35,
+                                            }}
+                                            resizeMode={'center'}
+                                            source={EXPAND}
+                                        />
+                                    </Pressable>
+                                </View>
+                            </View>}
+                        </Pressable>
+                    </LinearGradient>
+                    <LinearGradient
+                        start={{ x: 1, y: 0 }}
+                        end={{ x: 0, y: 1 }}
+                        colors={['white', '#183a51',]}
+                        style={{ ...styles.imageBoxContainer }}>
+                        <Pressable
+                            onPress={() => {
+                                captureImage("MATERIAL")
+                            }}
+                            style={{ ...styles.imageBoxPressable }}>
+                            <Image
+                                style={{
+                                    width: materialimage ? '100%' : 40,
+                                    height: materialimage ? '100%' : 40,
+                                }}
+                                resizeMode={'center'}
+                                source={materialimage ? { uri: materialimage } : MATERIAL}
+                            />
+                            {materialimage && <View style={{ ...styles.capturedImageContainer }}>
+                                <View style={{ ...styles.deleteButton }}>
+                                    <Pressable onPress={() => {
+                                        handleDelete("MATERIAL", materialimage);
+                                    }}>
+                                        <Image
+                                            style={{
+                                                width: 35,
+                                                height: 35,
+                                            }}
+                                            resizeMode={'center'}
+                                            source={DELETE}
+                                        />
+                                    </Pressable>
+                                </View>
+                                <View style={{ ...styles.expandButton }}>
+                                    <Pressable onPress={() => {
+                                        // expandImage(lorryimage);
+                                    }}>
+                                        <Image
+                                            style={{
+                                                width: 35,
+                                                height: 35,
+                                            }}
+                                            resizeMode={'center'}
+                                            source={EXPAND}
+                                        />
+                                    </Pressable>
+                                </View>
+                            </View>}
+                        </Pressable>
+                    </LinearGradient>
+                    <LinearGradient
+                        start={{ x: 1, y: 0 }}
+                        end={{ x: 0, y: 1 }}
+                        colors={['white', '#183a51',]}
+                        style={{ ...styles.imageBoxContainer }}>
+                        <Pressable
+                            onPress={() => {
+                                captureImage("SELFIE")
+                            }}
+                            style={{ ...styles.imageBoxPressable }}>
+                            <Image
+                                style={{
+                                    width: selfieimage ? '100%' : 40,
+                                    height: selfieimage ? '100%' : 40,
+                                }}
+                                resizeMode={'center'}
+                                source={selfieimage ? { uri: selfieimage } : SELFIE}
+                            />
+                            {selfieimage && <View style={{ ...styles.capturedImageContainer }}>
+                                <View style={{ ...styles.deleteButton }}>
+                                    <Pressable onPress={() => {
+                                        handleDelete("SELFIE", selfieimage);
+                                    }}>
+                                        <Image
+                                            style={{
+                                                width: 35,
+                                                height: 35,
+                                            }}
+                                            resizeMode={'center'}
+                                            source={DELETE}
+                                        />
+                                    </Pressable>
+                                </View>
+                                <View style={{ ...styles.expandButton }}>
+                                    <Pressable onPress={() => {
+                                        // expandImage(lorryimage);
+                                    }}>
+                                        <Image
+                                            style={{
+                                                width: 35,
+                                                height: 35,
+                                            }}
+                                            resizeMode={'center'}
+                                            source={EXPAND}
+                                        />
+                                    </Pressable>
+                                </View>
+                            </View>}
+                        </Pressable>
+                    </LinearGradient>
+
                 </View>
                 <View style={{ ...styles.flexRowContainer }}>
                     <LinearGradient
@@ -264,11 +372,10 @@ const Truckloading = () => {
                         style={{ ...styles.saveContainer }}>
                         <Pressable
                             onPress={() => {
-                                console.log("first", images)
-                                setLoader(true)
+                                loader(true)
                                 setTimeout(() => {
-                                    setLoader(false)
-                                }, 2000)
+                                    loader(false)
+                                }, 1000)
                             }}
                             style={{ ...styles.saveContainerPressable }}>
                             <View>
@@ -288,7 +395,7 @@ const styles = StyleSheet.create({
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'space-evenly',
-        marginVertical: HEIGHT * 0.008
+        marginVertical: HEIGHT * 0.007
     },
     scannerImageContainer: {
         width: '16%',
@@ -311,6 +418,42 @@ const styles = StyleSheet.create({
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    imageBoxContainer: {
+        width: WIDTH * 0.28,
+        height: HEIGHT * 0.17,
+        backgroundColor: WHITE,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: WIDTH * 0.01,
+        marginVertical: HEIGHT * 0.01,
+        alignSelf: 'center',
+        borderRadius: 4,
+        borderWidth: 1,
+        borderColor: WHITE
+    },
+    imageBoxPressable: {
+        height: '100%',
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    capturedImageContainer: {
+        width: '99%',
+        height: '99%',
+        position: 'absolute',
+    },
+    deleteButton: {
+        width: '98%',
+        alignSelf: 'center',
+        alignItems: 'flex-end',
+        paddingRight: 5,
+        paddingTop: 2
+    },
+    expandButton: {
+        height: '60%',
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })
-export default Truckloading
+export default Truckloading;

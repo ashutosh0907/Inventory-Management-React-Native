@@ -1,4 +1,4 @@
-import { Alert, View, Text, StyleSheet, ScrollView, ToastAndroid, ImageBackground, Modal, Pressable, TouchableOpacity, Image, KeyboardAvoidingView } from 'react-native'
+import { Alert, View, Text, StyleSheet, ScrollView, ToastAndroid, ImageBackground, Modal, Pressable, BackHandler, TouchableOpacity, Image, KeyboardAvoidingView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { BLACK, WHITE } from '../constants/color'
 import { storeObjByKey } from '../utils/Storage'
@@ -10,13 +10,39 @@ import { TextInputName } from '../components/TextInputName'
 import { BASE_URL } from '../constants/url'
 import { POSTNETWORK } from '../utils/Network'
 import { Loader } from '../components/Loader'
+import LinearGradient from 'react-native-linear-gradient'
+import { useFocusEffect } from '@react-navigation/native'
 
 const Login = ({ navigation }) => {
   const dispatch = useDispatch();
-  const [showlogin, setLogin] = useState('false');
+  const [showlogin, setLogin] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loader, setLoader] = useState(false);
+
+  useFocusEffect(() => {
+    const backAction = () => {
+      showlogin('false')
+      Alert.alert('', 'Are you sure you want to exit app ?', [
+        {
+          text: 'Cancel',
+          onPress: () => {
+            showlogin(true)
+          },
+          style: 'cancel',
+        },
+        { text: 'YES', onPress: () => BackHandler.exitApp() },
+      ]);
+
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => backHandler.remove();
+  });
 
   useEffect(() => {
     setTimeout(() => {
@@ -50,7 +76,7 @@ const Login = ({ navigation }) => {
   }
   return (
     <React.Fragment>
-      <MyStatusBar backgroundColor='#7ca8d5' barStyle={'dark-content'} />
+      <MyStatusBar backgroundColor='#6483ba' barStyle={'dark-content'} />
       <KeyboardAvoidingView behavior='height' style={{
         flex: 1
       }}>
@@ -61,8 +87,18 @@ const Login = ({ navigation }) => {
             transparent={true}
             animationType='fade'
             statusBarTranslucent
-            onRequestClose={() => { }}>
-            <MyStatusBar backgroundColor='#7ca8d5' barStyle={'dark-content'} />
+            onRequestClose={() => {
+              // showlogin(false)
+              Alert.alert('', 'Are you sure you want to exit app ?', [
+                {
+                  text: 'Cancel',
+                  onPress: () => { },
+                  style: 'cancel',
+                },
+                { text: 'YES', onPress: () => BackHandler.exitApp() },
+              ]);
+            }}>
+            <MyStatusBar backgroundColor='#6483ba' barStyle={'dark-content'} />
 
             <ScrollView showsVerticalScrollIndicator={false}>
               <View
@@ -78,31 +114,41 @@ const Login = ({ navigation }) => {
                   alignItems: 'center',
                   alignSelf: 'center',
                   justifyContent: 'flex-end',
-                  paddingBottom: 20
+                  paddingBottom: 20,
                 }}>
                   <Image
                     style={{
-                      width: '25%',
-                      height: '62%',
-                      borderRadius: 100
+                      width: '29%',
+                      height: '72%',
+                      borderRadius: 100,
+                      // borderWidth: 1,
+                      // borderColor: WHITE
                     }}
                     resizeMode={'center'}
                     source={LOGO}
                   />
                 </View>
-                <View style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
-                  width: '85%',
-                  height: '30%',
-                  paddingTop: 20,
-                  paddingBottom: 12,
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 7,
-                  borderWidth: 1,
-                  borderColor: WHITE,
-                }}>
+                <LinearGradient
+                  // start={{ x: 1, y: 0 }}
+                  // end={{ x: 0, y: 1 }}
+                  // colors={['rgba(100, 100, 100, 0.1)', 'rgba(255, 255, 255, 0.9)',]}
+                  end={{ x: 0, y: 1 }}
+                  start={{ x: 1, y: 0 }}
+                  colors={['#6483ba', 'white',]}
+                  style={{
+                    // backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    width: '85%',
+                    height: '30%',
+                    paddingTop: 20,
+                    paddingBottom: 12,
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 7,
+                    // borderWidth: 1,
+                    // borderColor: WHITE,
+                  }}>
+
                   <TextInputName
                     value={username}
                     title='Username'
@@ -133,8 +179,9 @@ const Login = ({ navigation }) => {
                   }}>
                     <Text style={{ color: BLACK, fontSize: 17, padding: 10, fontWeight: 'bold' }}>Login</Text>
                   </TouchableOpacity>
-                </View>
-              </View >
+                </LinearGradient>
+              </View>
+
             </ScrollView>
           </Modal>
         </ImageBackground>
