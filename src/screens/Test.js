@@ -68,7 +68,6 @@
 //         setExpandedModal({ visible: true, image: image })
 //     }
 
-
 //     const addImageContainer = ({ item }) => {
 //         const { image } = item;
 //         return (
@@ -353,11 +352,6 @@
 
 // export default Truckloading
 
-
-
-
-
-
 // import React, { useState } from 'react';
 // import { View, Text, Modal, TouchableOpacity, StatusBar, Pressable } from 'react-native';
 // import { BLACK, WHITE } from '../constants/color';
@@ -365,7 +359,6 @@
 
 // const TruckUnloading = () => {
 //   const [modal, setModal] = useState(false);
-
 
 //   return (
 //     <View style={{ flex: 1, backgroundColor: 'green' }}>
