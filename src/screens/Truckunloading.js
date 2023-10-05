@@ -30,8 +30,8 @@ import {GETNETWORK, POSTNETWORK} from '../utils/Network';
 import {BASE_URL} from '../constants/url';
 import Geolocation from 'react-native-geolocation-service';
 import {getObjByKey} from '../utils/Storage';
-import {convertToBase64} from '../utils/base64';
 import ZoomImage from '../components/ZoomImage';
+import ImgToBase64 from 'react-native-image-base64';
 
 const Truckunloading = ({
   loader,
@@ -56,6 +56,11 @@ const Truckunloading = ({
   const [geoCoords, setGeoCoords] = useState({latitude: '', longitude: ''});
   const [expandUri, setExpandUri] = useState('');
   const [zoom, setZoom] = useState(false);
+  const [base64Images, setBase64Images] = useState({
+    lorry: '',
+    material: '',
+    selfie: '',
+  });
 
   useEffect(() => {
     setBarcodeNo(barcodeoutnumber);
@@ -153,6 +158,34 @@ const Truckunloading = ({
       });
   };
 
+  // const captureImage = async type => {
+  //   console.log('TYPE----->', type);
+  //   let options = {
+  //     storageOption: {
+  //       path: 'images',
+  //     },
+  //     mediaType: 'mixed',
+  //     videoQuality: 'medium',
+  //     multiple: true,
+  //     selectionLimit: 4,
+  //     presentationStyle: 'formSheet',
+  //   };
+  //   if (true) {
+  //     ImagePicker.launchCamera(options, response => {
+  //       if (response.didCancel == undefined) {
+  //         loader(true);
+  //         if (type == 'LORRY') {
+  //           setLorryImage(response.assets[0].uri);
+  //         } else if (type == 'MATERIAL') {
+  //           setMaterialImage(response.assets[0].uri);
+  //         } else if (type == 'SELFIE') {
+  //           setSelfieImage(response.assets[0].uri);
+  //         }
+  //         loader(false);
+  //       }
+  //     });
+  //   }
+  // };
   const captureImage = async type => {
     console.log('TYPE----->', type);
     let options = {
@@ -166,15 +199,40 @@ const Truckunloading = ({
       presentationStyle: 'formSheet',
     };
     if (true) {
-      ImagePicker.launchCamera(options, response => {
+      ImagePicker.launchCamera(options, async response => {
         if (response.didCancel == undefined) {
           loader(true);
+          console.log('loader true');
           if (type == 'LORRY') {
             setLorryImage(response.assets[0].uri);
+            ImgToBase64.getBase64String(response.assets[0].uri)
+              .then(base64String => {
+                setBase64Images({...base64Images, lorry: base64String});
+              })
+              .catch(err => {
+                console.log(err);
+                loader(false);
+              });
           } else if (type == 'MATERIAL') {
             setMaterialImage(response.assets[0].uri);
+            ImgToBase64.getBase64String(response.assets[0].uri)
+              .then(base64String => {
+                setBase64Images({...base64Images, material: base64String});
+              })
+              .catch(err => {
+                console.log(err);
+                loader(false);
+              });
           } else if (type == 'SELFIE') {
             setSelfieImage(response.assets[0].uri);
+            ImgToBase64.getBase64String(response.assets[0].uri)
+              .then(base64String => {
+                setBase64Images({...base64Images, selfie: base64String});
+              })
+              .catch(err => {
+                console.log(err);
+                loader(false);
+              });
           }
           loader(false);
         }
@@ -210,18 +268,6 @@ const Truckunloading = ({
     setGeoCoords({latitude: '', longitude: ''});
   };
 
-  const base64Conversion = () => {
-    var lorryimg = convertToBase64(lorryimage);
-    var materialimg = convertToBase64(lorryimage);
-    var selfieimg = convertToBase64(lorryimage);
-    // arr.push()
-    return {
-      lorryimg: lorryimg,
-      materialimg: materialimg,
-      selfieimg: selfieimg,
-    };
-  };
-
   const handleSave = async () => {
     if (barcodeno == '' || barcodeno == null) {
       Alert.alert('Please scan the barcode');
@@ -233,15 +279,14 @@ const Truckunloading = ({
       Alert.alert('Please capture your selfie');
     } else {
       loader(true);
-      var base64Images = base64Conversion();
       const url = `${BASE_URL}api/savestatus`;
       const obj = {
         ChallanSl: challanSl,
         Barcode: barcodeno,
         Status: 'O',
-        LorryImage: base64Images.lorryimg,
-        MaterialImage: base64Images.materialimg,
-        UserImage: base64Images.selfieimg,
+        LorryImage: base64Images.lorry,
+        MaterialImage: base64Images.material,
+        UserImage: base64Images.selfie,
         Lattitude: `${geoCoords.latitude}`,
         Longitude: `${geoCoords.longitude}`,
         Address: 'Reverse Geocode',

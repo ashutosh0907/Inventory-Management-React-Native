@@ -65,28 +65,34 @@ const Login = ({navigation}) => {
   }, []);
 
   const handleLogin = () => {
-    setLoader(true);
-    const url = `${BASE_URL}api/login`;
-    const obj = {
-      userid: username,
-      password: password,
-    };
-    POSTNETWORK(url, obj)
-      .then(res => {
-        if (res.Code == 200) {
-          storeObjByKey('loginResponse', res.data[0]).then(() => {
-            dispatch(checkuserToken());
-          });
-          ToastAndroid.show('Login Successful', ToastAndroid.SHORT);
+    if (username == '' || username == null) {
+      Alert.alert('Please enter username');
+    } else if (password == '' || password == null) {
+      Alert.alert('Please enter password');
+    } else {
+      setLoader(true);
+      const url = `${BASE_URL}api/login`;
+      const obj = {
+        userid: username,
+        password: password,
+      };
+      POSTNETWORK(url, obj)
+        .then(res => {
+          if (res.Code == 200) {
+            storeObjByKey('loginResponse', res.data[0]).then(() => {
+              dispatch(checkuserToken());
+            });
+            ToastAndroid.show('Login Successful', ToastAndroid.SHORT);
+            setLoader(false);
+          } else {
+            Alert.alert(res.msg);
+            setLoader(false);
+          }
+        })
+        .catch(err => {
           setLoader(false);
-        } else {
-          Alert.alert(res.msg);
-          setLoader(false);
-        }
-      })
-      .catch(err => {
-        setLoader(false);
-      });
+        });
+    }
   };
   return (
     <React.Fragment>
@@ -116,7 +122,9 @@ const Login = ({navigation}) => {
             }}>
             <MyStatusBar backgroundColor="#6483ba" barStyle={'dark-content'} />
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}>
               <View
                 style={{
                   width: WIDTH,
@@ -196,6 +204,9 @@ const Login = ({navigation}) => {
                       marginTop: 20,
                     }}>
                     <Text
+                      onPress={() => {
+                        handleLogin();
+                      }}
                       style={{
                         color: BLACK,
                         fontSize: 17,
