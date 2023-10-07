@@ -172,12 +172,15 @@ const Truckloading = ({loader, scanner, barcodeinnumber, setBarcodeNumber}) => {
         LorryImage: base64Images.lorry,
         MaterialImage: base64Images.material,
         UserImage: base64Images.selfie,
+        // LorryImage: '',
+        // MaterialImage: '',
+        // UserImage: '',
         Lattitude: `${geoCoords.latitude}`,
         Longitude: `${geoCoords.longitude}`,
         Address: 'Reverse Geocode',
         UserSl: userSl,
       };
-      console.log('Object LOADING -> ', obj, 'Object LOADING -> ');
+      console.log(obj);
       POSTNETWORK(url, obj)
         .then(res => {
           console.log('ashutosh response', res);
@@ -192,6 +195,8 @@ const Truckloading = ({loader, scanner, barcodeinnumber, setBarcodeNumber}) => {
         })
         .catch(err => {
           loader(false);
+          console.log('ERROR', err);
+          Alert.alert('Something went wrong, Try Again!!');
         });
     }
   };
@@ -566,6 +571,7 @@ const Truckloading = ({loader, scanner, barcodeinnumber, setBarcodeNumber}) => {
             colors={['#183a51', '#21495f', 'white']}
             style={{...styles.saveContainer}}>
             <Pressable
+              android_ripple={{color: '#21495f'}}
               onPress={() => {
                 handleSave();
               }}

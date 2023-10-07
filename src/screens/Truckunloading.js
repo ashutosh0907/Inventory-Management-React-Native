@@ -307,6 +307,7 @@ const Truckunloading = ({
         })
         .catch(err => {
           loader(false);
+          Alert.alert('Something went wrong, Try Again!!');
         });
     }
   };
@@ -600,6 +601,7 @@ const Truckunloading = ({
             colors={['#183a51', '#21495f', 'white']}
             style={{...styles.saveContainer}}>
             <Pressable
+              android_ripple={{color: '#21495f'}}
               onPress={() => {
                 handleSave();
               }}
