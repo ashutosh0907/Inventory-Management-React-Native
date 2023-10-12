@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "ProTime.app"
-               BlueprintName = "ProTime"
-               ReferencedContainer = "container:ProTime.xcodeproj">
+               BuildableName = "Inventory.app"
+               BlueprintName = "Inventory"
+               ReferencedContainer = "container:Inventory.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "ProTimeTests.xctest"
-               BlueprintName = "ProTimeTests"
-               ReferencedContainer = "container:ProTime.xcodeproj">
+               BuildableName = "InventoryTests.xctest"
+               BlueprintName = "InventoryTests"
+               ReferencedContainer = "container:Inventory.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "ProTime.app"
-            BlueprintName = "ProTime"
-            ReferencedContainer = "container:ProTime.xcodeproj">
+            BuildableName = "Inventory.app"
+            BlueprintName = "Inventory"
+            ReferencedContainer = "container:Inventory.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "ProTime.app"
-            BlueprintName = "ProTime"
-            ReferencedContainer = "container:ProTime.xcodeproj">
+            BuildableName = "Inventory.app"
+            BlueprintName = "Inventory"
+            ReferencedContainer = "container:Inventory.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

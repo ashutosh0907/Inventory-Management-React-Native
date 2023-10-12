@@ -1,4 +1,4 @@
-package com.protime;
+package com.inventoryapp;
 
 import android.app.Application;
 import com.facebook.react.PackageList;

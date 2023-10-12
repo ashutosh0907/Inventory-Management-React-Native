@@ -10,3 +10,5 @@ export const ICONGRAY = '#878787';
 export const TABGRAY = '#3D3B3C';
 export const BLUE = '#00469F';
 export const GREEN = '#32C100';
+export const BRAND = '#f8ad42';
+export const BRANDBLUE = '#5f9fd6';

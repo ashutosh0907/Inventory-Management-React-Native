@@ -2,6 +2,7 @@ import {
   Alert,
   View,
   Text,
+  TextInput,
   StyleSheet,
   ScrollView,
   ToastAndroid,
@@ -11,6 +12,7 @@ import {
   BackHandler,
   TouchableOpacity,
   Image,
+  Button,
   KeyboardAvoidingView,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
@@ -18,36 +20,33 @@ import {BLACK, WHITE} from '../constants/color';
 import {storeObjByKey} from '../utils/Storage';
 import {checkuserToken} from '../redux/actions/auth';
 import {useDispatch} from 'react-redux';
-import {GALLERY, LOGO, TRUCK} from '../constants/imagepath';
+import {LOGO} from '../constants/imagepath';
 import {HEIGHT, MyStatusBar, WIDTH} from '../constants/config';
 import {TextInputName} from '../components/TextInputName';
 import {BASE_URL} from '../constants/url';
 import {POSTNETWORK} from '../utils/Network';
-import {Loader} from '../components/Loader';
 import LinearGradient from 'react-native-linear-gradient';
 import {useFocusEffect} from '@react-navigation/native';
+import {Loader} from '../components/Loader';
+import Departmentmanager from './../screens/Departmentmanager';
+import {products} from '../utils/data.js';
 
 const Login = ({navigation}) => {
   const dispatch = useDispatch();
-  const [showlogin, setLogin] = useState(false);
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState('storemanager');
   const [password, setPassword] = useState('');
   const [loader, setLoader] = useState(false);
 
   useFocusEffect(() => {
     const backAction = () => {
-      showlogin('false');
       Alert.alert('', 'Are you sure you want to exit app ?', [
         {
           text: 'Cancel',
-          onPress: () => {
-            showlogin(true);
-          },
+          onPress: () => {},
           style: 'cancel',
         },
         {text: 'YES', onPress: () => BackHandler.exitApp()},
       ]);
-
       return true;
     };
 
@@ -58,12 +57,6 @@ const Login = ({navigation}) => {
     return () => backHandler.remove();
   });
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLogin(true);
-    }, 1000);
-  }, []);
-
   const handleLogin = () => {
     if (username == '' || username == null) {
       Alert.alert('Please enter username');
@@ -71,177 +64,154 @@ const Login = ({navigation}) => {
       Alert.alert('Please enter password');
     } else {
       setLoader(true);
-      const url = `${BASE_URL}api/login`;
-      const obj = {
-        userid: username,
-        password: password,
-      };
-      POSTNETWORK(url, obj)
-        .then(res => {
-          if (res.Code == 200) {
-            storeObjByKey('loginResponse', res.data[0]).then(() => {
-              dispatch(checkuserToken());
-            });
-            ToastAndroid.show('Login Successful', ToastAndroid.SHORT);
-            setLoader(false);
-          } else {
-            Alert.alert(res.msg);
-            setLoader(false);
-          }
-        })
-        .catch(err => {
+      storeObjByKey('inventory', products);
+      setTimeout(() => {
+        if (username == 'storemanager' && password == 'store') {
+          storeObjByKey('loginResponse', {
+            username: username,
+            password: password,
+            email: 'storemanager@gmail.com',
+            user: 'storemanager',
+          }).then(() => {
+            dispatch(checkuserToken());
+          });
+          ToastAndroid.show(
+            'Store Manager Login Successful',
+            ToastAndroid.SHORT,
+          );
           setLoader(false);
-        });
+        } else if (username == 'departmentmanager' && password == 'dept') {
+          storeObjByKey('loginResponse', {
+            username: username,
+            password: password,
+            email: 'departmentmanager@gmail.com',
+            user: 'departmentmanager',
+          }).then(() => {
+            dispatch(checkuserToken());
+          });
+          ToastAndroid.show(
+            'Department Manager Login Successful',
+            ToastAndroid.SHORT,
+          );
+          setLoader(false);
+        } else {
+          Alert.alert('No credentials match !!');
+          setLoader(false);
+        }
+      }, 500);
     }
   };
+
+  useEffect(() => {
+    console.log(products);
+  }, []);
   return (
     <React.Fragment>
-      <MyStatusBar backgroundColor="#6483ba" barStyle={'dark-content'} />
+      <MyStatusBar backgroundColor={WHITE} barStyle={'dark-content'} />
+      <Loader visible={loader} onBackPress={setLoader} />
       <KeyboardAvoidingView
-        behavior="height"
         style={{
           flex: 1,
         }}>
-        <ImageBackground resizeMode="cover" source={TRUCK} style={styles.image}>
-          <Loader visible={loader} />
-          <Modal
-            visible={showlogin}
-            transparent={true}
-            animationType="fade"
-            statusBarTranslucent
-            onRequestClose={() => {
-              // showlogin(false)
-              Alert.alert('', 'Are you sure you want to exit app ?', [
-                {
-                  text: 'Cancel',
-                  onPress: () => {},
-                  style: 'cancel',
-                },
-                {text: 'YES', onPress: () => BackHandler.exitApp()},
-              ]);
-            }}>
-            <MyStatusBar backgroundColor="#6483ba" barStyle={'dark-content'} />
-
-            <ScrollView
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}>
-              <View
+        <ScrollView
+          keyboardShouldPersistTaps={'handled'}
+          contentContainerStyle={styles.container}>
+          <View style={styles.loginContainer}>
+            <View
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+              }}>
+              <Image resizeMode={'cover'} style={{}} source={LOGO} />
+            </View>
+            <View>
+              <TextInputName
+                title="Username"
+                value={username}
+                onChangeText={text => setUsername(text)}
+                style={styles.input}
+              />
+            </View>
+            <View>
+              <TextInputName
+                title="Password"
+                secureTextEntry
+                value={password}
+                onChangeText={text => setPassword(text)}
+                style={styles.input}
+              />
+            </View>
+            <View
+              style={{
+                padding: 10,
+                alignItems: 'flex-end',
+              }}>
+              <Text
+                onPress={() => {
+                  setLoader(true);
+                  setTimeout(() => {
+                    if (username == 'storemanager') {
+                      setUsername('departmentmanager');
+                    } else {
+                      setUsername('storemanager');
+                    }
+                    setLoader(false);
+                  }, 300);
+                }}
                 style={{
-                  width: WIDTH,
-                  height: HEIGHT,
-                  backgroundColor: `rgba(100, 100, 100, 0.0)`,
-                  alignSelf: 'center',
+                  color: BLACK,
+                  fontWeight: 'bold',
                 }}>
-                <View
+                {username == 'storemanager'
+                  ? 'Login as Departmentmanager!?'
+                  : 'Login as Storemanager!?'}
+              </Text>
+            </View>
+            <View>
+              <TouchableOpacity
+                onPress={() => {
+                  handleLogin();
+                }}
+                style={{
+                  ...styles.loginBtn,
+                }}>
+                <Text
                   style={{
-                    width: '100%',
-                    height: '22%',
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                    justifyContent: 'flex-end',
-                    paddingBottom: 20,
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    color: BLACK,
                   }}>
-                  <Image
-                    style={{
-                      width: '29%',
-                      height: '72%',
-                      borderRadius: 100,
-                      // borderWidth: 1,
-                      // borderColor: WHITE
-                    }}
-                    resizeMode={'center'}
-                    source={LOGO}
-                  />
-                </View>
-                <LinearGradient
-                  // start={{ x: 1, y: 0 }}
-                  // end={{ x: 0, y: 1 }}
-                  // colors={['rgba(100, 100, 100, 0.1)', 'rgba(255, 255, 255, 0.9)',]}
-                  end={{x: 0, y: 1}}
-                  start={{x: 1, y: 0}}
-                  colors={['#6483ba', 'white']}
-                  style={{
-                    // backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    width: '85%',
-                    height: '30%',
-                    paddingTop: 20,
-                    paddingBottom: 12,
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderRadius: 7,
-                    // borderWidth: 1,
-                    // borderColor: WHITE,
-                  }}>
-                  <TextInputName
-                    value={username}
-                    title="Username"
-                    placeholder="username"
-                    width="90%"
-                    onChangeText={setUsername}
-                  />
-                  <TextInputName
-                    value={password}
-                    title="Password"
-                    placeholder="password"
-                    width="90%"
-                    onChangeText={setPassword}
-                  />
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleLogin();
-                    }}
-                    style={{
-                      backgroundColor: 'rgba(100, 100, 100, 0.3)',
-                      width: WIDTH * 0.35,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      alignSelf: 'center',
-                      borderRadius: 4,
-                      marginVertical: 10,
-                      borderWidth: 1,
-                      borderColor: WHITE,
-                      marginTop: 20,
-                    }}>
-                    <Text
-                      onPress={() => {
-                        handleLogin();
-                      }}
-                      style={{
-                        color: BLACK,
-                        fontSize: 17,
-                        padding: 10,
-                        fontWeight: 'bold',
-                      }}>
-                      Login
-                    </Text>
-                  </TouchableOpacity>
-                </LinearGradient>
-              </View>
-            </ScrollView>
-          </Modal>
-        </ImageBackground>
+                  Login
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </React.Fragment>
   );
 };
 
 const styles = StyleSheet.create({
-  mainContainer: {
+  container: {
     flex: 1,
+    backgroundColor: WHITE,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
   },
-  image: {
-    // flex: 1,
-    width: '100%',
-    height: HEIGHT,
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    // width: '100%',
-    // height: '100%'
-    // justifyContent: 'center',
+  loginContainer: {
+    width: '80%',
+  },
+  input: {
+    marginBottom: 16,
+  },
+  loginBtn: {
+    marginTop: 16,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: '#f8ad42',
+    alignItems: 'center',
   },
 });
 

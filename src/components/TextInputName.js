@@ -25,7 +25,7 @@ export const TextInputName = ({
         <View style={{}}>
           <Text
             style={{
-              color: BLACK,
+              color: '#5f9fd6',
               fontWeight: 'bold',
               fontSize: 16,
               paddingLeft: 5,
@@ -37,12 +37,12 @@ export const TextInputName = ({
           style={{
             borderRadius: 7,
             borderWidth: 0.6,
-            borderColor: WHITE,
+            borderColor: '#f8ad42',
             marginTop: 5,
           }}>
           <LinearGradient
-            end={{x: 1, y: 1}}
-            start={{x: 0, y: 2}}
+            end={{x: 0, y: 1}}
+            start={{x: 2, y: 1}}
             colors={[
               'rgba(255, 255, 255, 0.3)',
               'rgba(255, 255, 255, 0.3)',
