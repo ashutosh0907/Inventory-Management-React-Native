@@ -43,7 +43,7 @@ const Storemanager = ({navigation}) => {
   const [userdata, setUserdata] = useState(false);
   const [inventory, setInventory] = useState([]);
   const [addmodal, setaddModal] = useState(false);
-  const [edititem, setEditItem] = useState({});
+  const [editmodal, seteditmodalModal] = useState(false);
   const [pid, setPid] = useState('');
   const [pname, setPname] = useState('');
   const [mrp, setMrp] = useState('');
@@ -114,7 +114,7 @@ const Storemanager = ({navigation}) => {
   });
 
   // METHOD FOR LOGOUT
-  const logoutUser = () => {
+  const logoutUser = async () => {
     Alert.alert('Logout', 'Are you sure, do you want to logout ?', [
       {
         text: 'Cancel',
@@ -123,8 +123,8 @@ const Storemanager = ({navigation}) => {
       },
       {
         text: 'Yes',
-        onPress: () => {
-          AsyncStorage.clear().then(() => {
+        onPress: async () => {
+          await AsyncStorage.removeItem('loginResponse').then(() => {
             dispatch(checkuserToken());
           });
         },
@@ -152,16 +152,47 @@ const Storemanager = ({navigation}) => {
     } finally {
       setLoader(false);
       setaddModal(false);
-      setPid('');
-      setPname('');
-      setMrp('');
-      setBatchno('');
-      setQuantity('');
+      resetFields();
     }
   };
 
+  // METHOD FOR UPDATING THE PRODUCT AND SYNCING TO ASYNC STORAGE
+  const updateProduct = async item => {
+    setLoader(true);
+    try {
+      // THIS PARTICULAR ITEM IS DELETED FROM THE ARRAY
+      let updatedItems = inventory.filter((element, index) => {
+        return element.pid != item.pid;
+      });
+      // ADDING UPDATED ITEMS LIST AND ITEM TO THE ARRAY
+      console.log('full OBJECT---->', [
+        {...item, ...staticData},
+        ...updatedItems,
+      ]);
+      setInventory([{...item, ...staticData}, ...updatedItems]);
+      storeObjByKey('inventory', products);
+      Alert.alert('UPDATED_PRODUCT_DETAILS_SUCCESSFULLY');
+    } catch (error) {
+      Alert.alert('ERROR_ADDING_PRODUCT', error);
+      setLoader(false);
+    } finally {
+      setLoader(false);
+      seteditmodalModal(false);
+      resetFields();
+    }
+  };
+
+  // RESETTING FIELDS AFTER SUCCESSFULL UPDATION AND ON EDIT MODAL REQUEST CLOSE
+  const resetFields = () => {
+    setPid('');
+    setPname('');
+    setMrp('');
+    setBatchno('');
+    setQuantity('');
+  };
+
   // METHOD FOR DELETING PRODUCT AND SYNCING TO ASYNC STORAGE
-  const deleteProduct = async item => {
+  const deleteProduct = async (item, type) => {
     setLoader(true);
     try {
       let products = inventory.filter((element, index) => {
@@ -170,7 +201,11 @@ const Storemanager = ({navigation}) => {
       console.log(products);
       setInventory(products);
       storeObjByKey('inventory', products);
-      Alert.alert('DELETED_PRODUCT_SUCCESSFULLY');
+      if (type == 'reject') {
+        Alert.alert('REJECTED_PRODUCT_SUCCESSFULLY');
+      } else {
+        Alert.alert('DELETED_PRODUCT_SUCCESSFULLY');
+      }
     } catch (error) {
       Alert.alert('ERROR_DELETING_PRODUCT');
       setLoader(false);
@@ -223,7 +258,14 @@ const Storemanager = ({navigation}) => {
           {item.status == 'approved' ? (
             <>
               <TouchableOpacity
-                onPress={() => {}}
+                onPress={() => {
+                  seteditmodalModal(true);
+                  setPid(item.pid);
+                  setPname(item.pname);
+                  setBatchno(item.batchno);
+                  setMrp(item.mrp);
+                  setQuantity(item.quantity);
+                }}
                 style={{
                   ...styles.optionsBtns,
                   backgroundColor: BRANDBLUE,
@@ -254,22 +296,40 @@ const Storemanager = ({navigation}) => {
               </TouchableOpacity>
             </>
           ) : (
-            <TouchableOpacity
-              onPress={() => {
-                approveProduct(item);
-              }}
-              style={{
-                ...styles.optionsBtns,
-                backgroundColor: GREEN,
-              }}>
-              <Text
+            <>
+              <TouchableOpacity
+                onPress={() => {
+                  approveProduct(item);
+                }}
                 style={{
-                  color: WHITE,
-                  fontWeight: 'bold',
+                  ...styles.optionsBtns,
+                  backgroundColor: GREEN,
                 }}>
-                Approve
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    color: WHITE,
+                    fontWeight: 'bold',
+                  }}>
+                  Approve
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  deleteProduct(item, 'reject');
+                }}
+                style={{
+                  ...styles.optionsBtns,
+                  backgroundColor: RED,
+                }}>
+                <Text
+                  style={{
+                    color: WHITE,
+                    fontWeight: 'bold',
+                  }}>
+                  Reject
+                </Text>
+              </TouchableOpacity>
+            </>
           )}
         </View>
       </View>
@@ -280,6 +340,7 @@ const Storemanager = ({navigation}) => {
     <React.Fragment>
       <MyStatusBar backgroundColor={WHITE} barStyle={'dark-content'} />
       <Loader visible={loader} />
+      {/* ADD_PRODUCT MODAL */}
       <Modal
         visible={addmodal}
         transparent={true}
@@ -332,8 +393,8 @@ const Storemanager = ({navigation}) => {
             <View style={{...styles.textInputContainer}}>
               <TextInputName
                 value={mrp}
-                title="Product ID"
-                placeholder="Enter Product ID"
+                title="MRP"
+                placeholder="Enter Product MRP"
                 width="94%"
                 onChangeText={setMrp}
               />
@@ -367,6 +428,103 @@ const Storemanager = ({navigation}) => {
                   color: BLACK,
                 }}>
                 Add Product
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </Modal>
+      {/* ADD_PRODUCT MODAL END */}
+      {/* EDIT_PRODUCT MODAL */}
+      <Modal
+        visible={editmodal}
+        transparent={true}
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => {
+          seteditmodalModal(false);
+          resetFields();
+        }}>
+        <MyStatusBar backgroundColor={WHITE} barStyle={'dark-content'} />
+        <Loader visible={loader} />
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <View
+            style={{
+              width: WIDTH,
+              height: HEIGHT,
+              // backgroundColor: `rgba(100, 100, 100, 0.4)`,
+              backgroundColor: WHITE,
+              alignSelf: 'center',
+              alignItems: 'center',
+            }}>
+            <View style={{...styles.textInputContainer}}>
+              <TextInputName
+                editable={false}
+                value={pid}
+                title="Product ID"
+                placeholder="Enter Product ID"
+                width="94%"
+                onChangeText={setPid}
+              />
+            </View>
+            <View style={{...styles.textInputContainer}}>
+              <TextInputName
+                value={pname}
+                title="Product Name"
+                placeholder="Enter Product Name"
+                width="94%"
+                onChangeText={setPname}
+              />
+            </View>
+            <View style={{...styles.textInputContainer}}>
+              <TextInputName
+                value={batchno}
+                editable={false}
+                title="Batch Number"
+                placeholder="Enter Batch Number"
+                width="94%"
+                onChangeText={setBatchno}
+              />
+            </View>
+            <View style={{...styles.textInputContainer}}>
+              <TextInputName
+                value={mrp}
+                title="MRP"
+                placeholder="Enter Product MRP"
+                width="94%"
+                onChangeText={setMrp}
+              />
+            </View>
+            <View style={{...styles.textInputContainer}}>
+              <TextInputName
+                value={quantity}
+                title="Product Quantity"
+                placeholder="Enter Product Quantity"
+                width="94%"
+                onChangeText={setQuantity}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                updateProduct({
+                  pid: pid,
+                  pname: pname,
+                  mrp: mrp,
+                  batchno: batchno,
+                  quantity: quantity,
+                });
+              }}
+              style={{
+                ...styles.addProductBtn,
+              }}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                  color: BLACK,
+                }}>
+                Update Product
               </Text>
             </TouchableOpacity>
           </View>
@@ -549,7 +707,6 @@ const styles = StyleSheet.create({
   },
   productListView: {
     width: '100%',
-    // flex: 1,
     height: '100%',
   },
   inventoryView: {

@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import {HEIGHT, STYLES, WIDTH} from '../constants/config';
-import {BLACK, Border_Color, GRAY, WHITE} from '../constants/color';
+import {BLACK, BRAND, Border_Color, GRAY, WHITE} from '../constants/color';
 import {RFValue} from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -14,7 +14,7 @@ export const TextInputName = ({
   // maxLength=0,
   onChangeText,
   MarginVertical = 0,
-  // editable="default"
+  editable = true,
 }) => {
   return (
     <>
@@ -43,17 +43,21 @@ export const TextInputName = ({
           <LinearGradient
             end={{x: 0, y: 1}}
             start={{x: 2, y: 1}}
-            colors={[
-              'rgba(255, 255, 255, 0.3)',
-              'rgba(255, 255, 255, 0.3)',
-              'rgba(100, 100, 100, 0.4)',
-            ]}
+            colors={
+              editable == true
+                ? [
+                    'rgba(255, 255, 255, 0.3)',
+                    'rgba(255, 255, 255, 0.3)',
+                    'rgba(100, 100, 100, 0.4)',
+                  ]
+                : ['black', 'rgba(255, 255, 255, 0.3)', BRAND]
+            }
             style={{
               borderRadius: 7,
             }}>
             <TextInput
               secureTextEntry={title == 'Password' ? true : false}
-              editable={true}
+              editable={editable}
               onChangeText={txt => {
                 // if (!/[0-9,.*-@]/.test(txt.slice(-1))) {
                 onChangeText(txt);
