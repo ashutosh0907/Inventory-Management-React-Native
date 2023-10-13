@@ -96,7 +96,7 @@ const Departmentmanager = () => {
     try {
       setLoader(true);
       let inventory = await getObjByKey('inventory');
-      console.log('Data retrieved:', inventory);
+      console.log('Data retrieved DEPARTMENT:--------------->', inventory);
       setInventory(inventory);
     } catch (error) {
       console.error('ERROR: GETTING_USER_DATA', error);
@@ -113,7 +113,7 @@ const Departmentmanager = () => {
       console.log('------>', {...staticData, ...item});
       products = [...inventory, {...staticData, ...item}];
       setInventory([...inventory, {...staticData, ...item}]);
-      storeObjByKey('inventory', products);
+      await storeObjByKey('inventory', products);
       ToastAndroid.show('PRODUCT_ADDED_APPROVAL_PENDING', ToastAndroid.LONG);
     } catch (error) {
       Alert.alert('ERROR_ADDING_PRODUCT');
@@ -171,7 +171,7 @@ const Departmentmanager = () => {
       });
       console.log(products);
       setInventory(products);
-      storeObjByKey('inventory', products);
+      await storeObjByKey('inventory', products);
       if (type == 'reject') {
         Alert.alert('REJECTED_PRODUCT_SUCCESSFULLY');
       } else {
@@ -199,7 +199,7 @@ const Departmentmanager = () => {
         }
       });
       setInventory(products);
-      storeObjByKey('inventory', products);
+      await storeObjByKey('inventory', products);
       Alert.alert('REQUESTED_EDIT_ACCESS_SUCCESSFULLY');
     } catch (error) {
       Alert.alert('REQUESTED_EDIT_ACCESS_ERROR');

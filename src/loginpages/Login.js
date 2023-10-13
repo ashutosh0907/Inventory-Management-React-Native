@@ -23,13 +23,8 @@ import {useDispatch} from 'react-redux';
 import {LOGO} from '../constants/imagepath';
 import {HEIGHT, MyStatusBar, WIDTH} from '../constants/config';
 import {TextInputName} from '../components/TextInputName';
-import {BASE_URL} from '../constants/url';
-import {POSTNETWORK} from '../utils/Network';
-import LinearGradient from 'react-native-linear-gradient';
 import {useFocusEffect} from '@react-navigation/native';
 import {Loader} from '../components/Loader';
-import Departmentmanager from './../screens/Departmentmanager';
-import {products} from '../utils/data.js';
 
 const Login = ({navigation}) => {
   const dispatch = useDispatch();
@@ -57,17 +52,16 @@ const Login = ({navigation}) => {
     return () => backHandler.remove();
   });
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (username == '' || username == null) {
       Alert.alert('Please enter username');
     } else if (password == '' || password == null) {
       Alert.alert('Please enter password');
     } else {
       setLoader(true);
-      storeObjByKey('inventory', products);
-      setTimeout(() => {
+      setTimeout(async () => {
         if (username == 'storemanager' && password == 'store') {
-          storeObjByKey('loginResponse', {
+          await storeObjByKey('loginResponse', {
             username: username,
             password: password,
             email: 'storemanager@gmail.com',
@@ -81,7 +75,7 @@ const Login = ({navigation}) => {
           );
           setLoader(false);
         } else if (username == 'departmentmanager' && password == 'dept') {
-          storeObjByKey('loginResponse', {
+          await storeObjByKey('loginResponse', {
             username: username,
             password: password,
             email: 'departmentmanager@gmail.com',
@@ -102,9 +96,6 @@ const Login = ({navigation}) => {
     }
   };
 
-  useEffect(() => {
-    console.log(products);
-  }, []);
   return (
     <React.Fragment>
       <MyStatusBar backgroundColor={WHITE} barStyle={'dark-content'} />

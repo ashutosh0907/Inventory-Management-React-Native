@@ -1,1 +1,1 @@
-export const BASE_URL = "https://protimes.co.in/sliapi/";
+export const BASE_URL = '';

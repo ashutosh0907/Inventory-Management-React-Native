@@ -145,7 +145,7 @@ const Storemanager = ({navigation}) => {
       console.log('------>', {...staticData, ...item});
       products = [...inventory, {...staticData, ...item}];
       setInventory([...inventory, {...staticData, ...item}]);
-      storeObjByKey('inventory', products);
+      await storeObjByKey('inventory', products);
     } catch (error) {
       Alert.alert('ERROR_ADDING_PRODUCT');
       setLoader(false);
@@ -170,7 +170,7 @@ const Storemanager = ({navigation}) => {
         ...updatedItems,
       ]);
       setInventory([{...item, ...staticData}, ...updatedItems]);
-      storeObjByKey('inventory', products);
+      await storeObjByKey('inventory', products);
       Alert.alert('UPDATED_PRODUCT_DETAILS_SUCCESSFULLY');
     } catch (error) {
       Alert.alert('ERROR_ADDING_PRODUCT', error);
@@ -198,9 +198,9 @@ const Storemanager = ({navigation}) => {
       let products = inventory.filter((element, index) => {
         return element.pid != item.pid;
       });
-      console.log(products);
+      console.log('DELETE------>', products);
       setInventory(products);
-      storeObjByKey('inventory', products);
+      await storeObjByKey('inventory', products);
       if (type == 'reject') {
         Alert.alert('REJECTED_PRODUCT_SUCCESSFULLY');
       } else {
@@ -223,9 +223,9 @@ const Storemanager = ({navigation}) => {
         }
         return element;
       });
-      console.log(products);
+      console.log('APPROVED------->', products);
       setInventory(products);
-      storeObjByKey('inventory', products);
+      await storeObjByKey('inventory', products);
       Alert.alert('APPROVED_PRODUCT_SUCCESSFULLY');
     } catch (error) {
       Alert.alert('ERROR_DELETING_PRODUCT');
