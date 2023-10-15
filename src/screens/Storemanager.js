@@ -11,6 +11,7 @@ import {
   Alert,
   BackHandler,
   Modal,
+  ToastAndroid,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {
@@ -170,8 +171,11 @@ const Storemanager = ({navigation}) => {
         ...updatedItems,
       ]);
       setInventory([{...item, ...staticData}, ...updatedItems]);
-      await storeObjByKey('inventory', products);
-      Alert.alert('UPDATED_PRODUCT_DETAILS_SUCCESSFULLY');
+      await storeObjByKey('inventory', [{...item, ...staticData}, ...updatedItems]);
+      ToastAndroid.show(
+        'UPDATED_PRODUCT_DETAILS_SUCCESSFULLY',
+        ToastAndroid.LONG,
+      );
     } catch (error) {
       Alert.alert('ERROR_ADDING_PRODUCT', error);
       setLoader(false);
@@ -219,7 +223,7 @@ const Storemanager = ({navigation}) => {
     try {
       let products = inventory.map(element => {
         if (element.pid === item.pid) {
-          return {...element, status: 'approved'};
+          return {...element, status: 'approved', editaccess: true};
         }
         return element;
       });

@@ -38,8 +38,6 @@ const Departmentmanager = () => {
   const [inventory, setInventory] = useState([]);
   const [addmodal, setaddModal] = useState(false);
   const [editmodal, seteditmodalModal] = useState(false);
-  const [editaccess, seteditAccess] = useState(false);
-  const [editid, setEditId] = useState('');
   const [pid, setPid] = useState('');
   const [pname, setPname] = useState('');
   const [mrp, setMrp] = useState('');
@@ -185,6 +183,41 @@ const Departmentmanager = () => {
     }
   };
 
+  // METHOD FOR UPDATING THE PRODUCT AND SYNCING TO ASYNC STORAGE
+  const updateProduct = async item => {
+    setLoader(true);
+    try {
+      // THIS PARTICULAR ITEM IS DELETED FROM THE ARRAY
+      let updatedItems = inventory.filter((element, index) => {
+        return element.pid != item.pid;
+      });
+      // ADDING UPDATED ITEMS LIST AND ITEM TO THE ARRAY
+      console.log('full OBJECT---->', [
+        {...item, ...staticData},
+        ...updatedItems,
+      ]);
+      setInventory([
+        {...item, ...staticData, status: 'approved', editrequest: true},
+        ...updatedItems,
+      ]);
+      await storeObjByKey('inventory', [
+        {...item, ...staticData, status: 'approved', editrequest: true},
+        ...updatedItems,
+      ]);
+      ToastAndroid.show(
+        'UPDATED_PRODUCT_DETAILS_SUCCESSFULLY',
+        ToastAndroid.LONG,
+      );
+    } catch (error) {
+      Alert.alert('ERROR_ADDING_PRODUCT', error);
+      setLoader(false);
+    } finally {
+      setLoader(false);
+      seteditmodalModal(false);
+      resetFields();
+    }
+  };
+
   const requestEditAccess = async item => {
     try {
       setLoader(true);
@@ -192,8 +225,7 @@ const Departmentmanager = () => {
       let products = inventory.map((element, index) => {
         if (element.id == item.id) {
           if (element.pid === item.pid) {
-            seteditAccess(element.pid);
-            return {...element, status: 'pending'};
+            return {...element, status: 'pending', editrequest: true};
           }
           return element;
         }
@@ -246,7 +278,7 @@ const Departmentmanager = () => {
             </TouchableOpacity>
           ) : (
             item.status == 'approved' &&
-            (editaccess == item.id ? (
+            (item.editrequest == true ? (
               <>
                 <TouchableOpacity
                   onPress={() => {
